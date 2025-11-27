@@ -20,7 +20,7 @@ export default function BuatLaporan() {
     title: "",
     period_start: "",
     period_end: "",
-    type: "monthly",
+    type: "financial",
   });
 
   const { data: transactions } = useQuery({
