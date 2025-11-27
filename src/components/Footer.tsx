@@ -36,10 +36,6 @@ export default function Footer() {
               </div>
               <div>
                 <div className="text-xl font-bold text-foreground font-amiri">{profile?.name || "Masjid Al-Ikhlas"}</div>
-                <div className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Moon className="w-3 h-3" />
-                  Pengelolaan Modern
-                </div>
               </div>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
