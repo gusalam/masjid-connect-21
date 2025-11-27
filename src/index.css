@@ -1,0 +1,289 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Islamic Night Theme - Masjid Al-Ikhlas */
+    --background: 220 50% 12%;
+    --foreground: 210 30% 96%;
+
+    --card: 220 45% 16%;
+    --card-foreground: 210 30% 96%;
+
+    --popover: 220 45% 16%;
+    --popover-foreground: 210 30% 96%;
+
+    --primary: 220 70% 22%;
+    --primary-foreground: 210 30% 96%;
+
+    --secondary: 200 85% 65%;
+    --secondary-foreground: 220 70% 15%;
+
+    --muted: 220 40% 25%;
+    --muted-foreground: 210 20% 70%;
+
+    --accent: 200 70% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 35% 28%;
+    --input: 220 35% 28%;
+    --ring: 51 100% 50%;
+
+    --radius: 0.75rem;
+    
+    /* Islamic Night Custom Colors */
+    --navy-dark: 220 70% 18%;
+    --navy-deep: 220 70% 22%;
+    --sky-blue: 200 85% 65%;
+    --sky-light: 200 80% 75%;
+    --gold: 51 100% 50%;
+    --gold-light: 51 100% 60%;
+    --gold-dark: 45 95% 45%;
+    --midnight: 220 60% 8%;
+    --starlight: 210 30% 96%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(220 70% 22%) 0%, hsl(200 70% 50%) 100%);
+    --gradient-night: linear-gradient(180deg, hsl(220 60% 8%) 0%, hsl(220 70% 18%) 50%, hsl(200 70% 30%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(51 100% 50%) 0%, hsl(45 95% 45%) 100%);
+    --gradient-sky: linear-gradient(135deg, hsl(200 85% 65%) 0%, hsl(200 80% 75%) 100%);
+    
+    /* Shadows & Glows */
+    --shadow-soft: 0 2px 12px hsl(220 70% 8% / 0.4);
+    --shadow-medium: 0 4px 24px hsl(220 70% 8% / 0.5);
+    --shadow-gold-glow: 0 0 30px hsl(51 100% 50% / 0.4), 0 0 60px hsl(51 100% 50% / 0.2);
+    --shadow-blue-glow: 0 0 40px hsl(200 85% 65% / 0.3);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 220 55% 10%;
+    --foreground: 210 30% 98%;
+
+    --card: 220 50% 14%;
+    --card-foreground: 210 30% 98%;
+
+    --popover: 220 50% 14%;
+    --popover-foreground: 210 30% 98%;
+
+    --primary: 220 75% 20%;
+    --primary-foreground: 210 30% 98%;
+
+    --secondary: 200 90% 70%;
+    --secondary-foreground: 220 70% 15%;
+
+    --muted: 220 45% 22%;
+    --muted-foreground: 210 20% 75%;
+
+    --accent: 200 75% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 40% 25%;
+    --input: 220 40% 25%;
+    --ring: 51 100% 55%;
+    --sidebar-background: 220 60% 12%;
+    --sidebar-foreground: 210 30% 96%;
+    --sidebar-primary: 200 80% 60%;
+    --sidebar-primary-foreground: 220 70% 15%;
+    --sidebar-accent: 220 45% 20%;
+    --sidebar-accent-foreground: 210 30% 96%;
+    --sidebar-border: 220 40% 25%;
+    --sidebar-ring: 51 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: "kern" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Amiri', serif;
+    font-weight: 700;
+  }
+}
+
+@layer utilities {
+  .islamic-pattern {
+    background-image: 
+      repeating-linear-gradient(45deg, transparent, transparent 15px, hsl(var(--gold) / 0.02) 15px, hsl(var(--gold) / 0.02) 30px),
+      repeating-linear-gradient(-45deg, transparent, transparent 15px, hsl(var(--gold) / 0.02) 15px, hsl(var(--gold) / 0.02) 30px);
+  }
+
+  .stars-pattern {
+    background-image: 
+      radial-gradient(circle at 20% 30%, hsl(var(--gold)) 1px, transparent 1px),
+      radial-gradient(circle at 80% 20%, hsl(var(--gold)) 1px, transparent 1px),
+      radial-gradient(circle at 40% 70%, hsl(var(--gold)) 1px, transparent 1px),
+      radial-gradient(circle at 90% 80%, hsl(var(--gold)) 1px, transparent 1px),
+      radial-gradient(circle at 15% 90%, hsl(var(--gold)) 1px, transparent 1px),
+      radial-gradient(circle at 60% 45%, hsl(var(--gold) / 0.6) 1px, transparent 1px);
+    background-size: 200px 200px, 250px 250px, 180px 180px, 220px 220px, 190px 190px, 210px 210px;
+    background-position: 0 0, 40px 60px, 130px 270px, 70px 100px, 150px 200px, 90px 150px;
+  }
+  
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-night {
+    background: var(--gradient-night);
+  }
+  
+  .gradient-gold {
+    background: var(--gradient-gold);
+  }
+
+  .gradient-sky {
+    background: var(--gradient-sky);
+  }
+  
+  .text-gradient-gold {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-sky {
+    background: var(--gradient-sky);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .glow-gold {
+    box-shadow: var(--shadow-gold-glow);
+  }
+
+  .glow-blue {
+    box-shadow: var(--shadow-blue-glow);
+  }
+  
+  .hover-lift {
+    transition: var(--transition-smooth);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-medium);
+  }
+
+  .card-gold-border {
+    border: 1px solid hsl(var(--gold) / 0.3);
+  }
+
+  .card-gold-border:hover {
+    border-color: hsl(var(--gold) / 0.6);
+    box-shadow: 0 0 20px hsl(var(--gold) / 0.2);
+  }
+
+  /* Crescent Moon Shape */
+  .crescent-moon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: -10px 0 0 0 hsl(var(--gold));
+    background: transparent;
+  }
+
+  /* Star Shape */
+  .star {
+    position: relative;
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 14px solid hsl(var(--gold));
+    transform: rotate(35deg);
+  }
+
+  .star:before {
+    content: '';
+    position: absolute;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 10px solid hsl(var(--gold));
+    top: -6px;
+    left: -5px;
+    transform: rotate(-35deg);
+  }
+
+  .star:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -8px;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 14px solid hsl(var(--gold));
+    transform: rotate(-70deg);
+  }
+  
+  /* Vertical Marquee Animation */
+  @keyframes scroll-vertical {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-50%);
+    }
+  }
+  
+  .donors-scroll {
+    animation: scroll-vertical 30s linear infinite;
+    padding: 1rem 0;
+  }
+  
+  .donors-scroll:hover {
+    animation-play-state: paused;
+  }
+  
+  /* Hover Scale Animation */
+  .hover-scale {
+    transition: transform 0.2s ease-out;
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+}
