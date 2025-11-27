@@ -41,26 +41,77 @@ export default function BuatLaporan() {
     enabled: !!formData.period_start && !!formData.period_end,
   });
 
+  const { data: donations } = useQuery({
+    queryKey: ["donations", formData.period_start, formData.period_end],
+    queryFn: async () => {
+      if (!formData.period_start || !formData.period_end) return [];
+      
+      const { data, error } = await supabase
+        .from("donations")
+        .select("*")
+        .eq("status", "verified")
+        .gte("created_at", formData.period_start)
+        .lte("created_at", formData.period_end)
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!formData.period_start && !!formData.period_end,
+  });
+
   const totalIncome = transactions
     ?.filter((t) => t.type === "income")
     .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+
+  const totalDonations = donations
+    ?.reduce((sum, d) => sum + Number(d.amount), 0) || 0;
 
   const totalExpense = transactions
     ?.filter((t) => t.type === "expense")
     .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
 
-  const balance = totalIncome - totalExpense;
+  const balance = (totalIncome + totalDonations) - totalExpense;
+
+  // Category breakdowns
+  const incomeByCategory = transactions
+    ?.filter((t) => t.type === "income")
+    .reduce((acc, t) => {
+      acc[t.category] = (acc[t.category] || 0) + Number(t.amount);
+      return acc;
+    }, {} as Record<string, number>) || {};
+
+  const expenseByCategory = transactions
+    ?.filter((t) => t.type === "expense")
+    .reduce((acc, t) => {
+      acc[t.category] = (acc[t.category] || 0) + Number(t.amount);
+      return acc;
+    }, {} as Record<string, number>) || {};
+
+  const donationByCategory = donations
+    ?.reduce((acc, d) => {
+      acc[d.category] = (acc[d.category] || 0) + Number(d.amount);
+      return acc;
+    }, {} as Record<string, number>) || {};
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
       const reportContent = {
         summary: {
           total_income: totalIncome,
+          total_donations: totalDonations,
           total_expense: totalExpense,
           balance: balance,
           transaction_count: transactions?.length || 0,
+          donation_count: donations?.length || 0,
+        },
+        breakdown: {
+          income_by_category: incomeByCategory,
+          expense_by_category: expenseByCategory,
+          donation_by_category: donationByCategory,
         },
         transactions: transactions,
+        donations: donations,
       };
 
       const { error } = await supabase.from("reports").insert([{
@@ -88,10 +139,10 @@ export default function BuatLaporan() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!transactions || transactions.length === 0) {
+    if ((!transactions || transactions.length === 0) && (!donations || donations.length === 0)) {
       toast({
         title: "Peringatan",
-        description: "Tidak ada transaksi dalam periode ini",
+        description: "Tidak ada transaksi atau donasi dalam periode ini",
         variant: "destructive",
       });
       return;
@@ -159,30 +210,91 @@ export default function BuatLaporan() {
                 </div>
               </div>
 
-              {transactions && transactions.length > 0 && (
+              {(transactions && transactions.length > 0 || donations && donations.length > 0) && (
                 <Card className="bg-muted/50">
                   <CardHeader>
                     <CardTitle className="text-lg">Ringkasan Laporan</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Total Pemasukan:</span>
-                      <span className="font-bold text-primary">{formatCurrency(totalIncome)}</span>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Total Pemasukan (Transaksi):</span>
+                        <span className="font-bold text-green-600">{formatCurrency(totalIncome)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Total Donasi:</span>
+                        <span className="font-bold text-green-600">{formatCurrency(totalDonations)}</span>
+                      </div>
+                      <div className="flex justify-between pt-2 border-t">
+                        <span className="font-semibold text-muted-foreground">Total Pemasukan Keseluruhan:</span>
+                        <span className="font-bold text-primary">{formatCurrency(totalIncome + totalDonations)}</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
+                    
+                    <div className="flex justify-between pt-2 border-t">
                       <span className="text-muted-foreground">Total Pengeluaran:</span>
                       <span className="font-bold text-destructive">{formatCurrency(totalExpense)}</span>
                     </div>
-                    <div className="flex justify-between pt-3 border-t">
-                      <span className="font-semibold">Saldo:</span>
-                      <span className={`font-bold ${balance >= 0 ? "text-primary" : "text-destructive"}`}>
+                    
+                    <div className="flex justify-between pt-3 border-t-2">
+                      <span className="font-semibold text-lg">Saldo Akhir:</span>
+                      <span className={`font-bold text-lg ${balance >= 0 ? "text-primary" : "text-destructive"}`}>
                         {formatCurrency(balance)}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Jumlah Transaksi:</span>
-                      <span className="font-semibold">{transactions.length}</span>
+                    
+                    <div className="grid grid-cols-2 gap-4 pt-3 border-t">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Transaksi:</span>
+                        <span className="font-semibold">{transactions?.length || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Donasi:</span>
+                        <span className="font-semibold">{donations?.length || 0}</span>
+                      </div>
                     </div>
+
+                    {Object.keys(incomeByCategory).length > 0 && (
+                      <div className="pt-3 border-t">
+                        <p className="font-semibold mb-2">Pemasukan per Kategori:</p>
+                        <div className="space-y-1">
+                          {Object.entries(incomeByCategory).map(([category, amount]) => (
+                            <div key={category} className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">{category}:</span>
+                              <span className="font-medium">{formatCurrency(amount)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {Object.keys(donationByCategory).length > 0 && (
+                      <div className="pt-3 border-t">
+                        <p className="font-semibold mb-2">Donasi per Kategori:</p>
+                        <div className="space-y-1">
+                          {Object.entries(donationByCategory).map(([category, amount]) => (
+                            <div key={category} className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">{category}:</span>
+                              <span className="font-medium">{formatCurrency(amount)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {Object.keys(expenseByCategory).length > 0 && (
+                      <div className="pt-3 border-t">
+                        <p className="font-semibold mb-2">Pengeluaran per Kategori:</p>
+                        <div className="space-y-1">
+                          {Object.entries(expenseByCategory).map(([category, amount]) => (
+                            <div key={category} className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">{category}:</span>
+                              <span className="font-medium">{formatCurrency(amount)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
