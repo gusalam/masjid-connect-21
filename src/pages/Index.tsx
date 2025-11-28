@@ -11,12 +11,11 @@ import {
   TrendingUp, 
   Users, 
   BookOpen,
-  DollarSign,
-  FileText,
   Sparkles,
   Moon,
   Star
 } from "lucide-react";
+import GalleryCarousel from "@/components/GalleryCarousel";
 
 export default function Index() {
   const features = [
@@ -44,13 +43,6 @@ export default function Index() {
       description: "Sistem pengelolaan data jamaah yang terstruktur dan mudah.",
       path: "/admin/jamaah"
     }
-  ];
-
-  const stats = [
-    { icon: Users, label: "Jamaah Terdaftar", value: "500+", color: "secondary" },
-    { icon: DollarSign, label: "Dana Terkumpul", value: "Rp 50 Jt", color: "gold" },
-    { icon: Calendar, label: "Kegiatan Bulanan", value: "20+", color: "accent" },
-    { icon: FileText, label: "Laporan Transparan", value: "100%", color: "gold" }
   ];
 
   return (
@@ -192,26 +184,8 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-24 bg-card/40 relative overflow-hidden">
-        <div className="absolute inset-0 islamic-pattern opacity-10" />
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div 
-                key={index} 
-                className="text-center space-y-3 p-6 rounded-2xl bg-card/60 backdrop-blur-sm hover:shadow-lg transition-all card-gold-border hover-lift"
-              >
-                <div className={`w-16 h-16 mx-auto rounded-full bg-${stat.color}/10 border border-${stat.color}/30 flex items-center justify-center`}>
-                  <stat.icon className={`w-8 h-8 text-${stat.color}`} />
-                </div>
-                <div className={`text-3xl font-bold text-${stat.color} font-amiri`}>{stat.value}</div>
-                <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Gallery Carousel Section */}
+      <GalleryCarousel />
 
       {/* CTA Section */}
       <section className="py-24 relative overflow-hidden">
