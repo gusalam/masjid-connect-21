@@ -172,7 +172,7 @@ export default function AdminDashboard() {
   ];
 
   const quickActions = [
-    { icon: Users, label: "Kelola Jamaah", color: "bg-secondary", path: "/admin/jamaah" },
+    { icon: Bell, label: "Pengumuman", color: "bg-secondary", path: "/admin/pengumuman" },
     { icon: Calendar, label: "Tambah Kegiatan", color: "bg-accent", path: "/admin/kegiatan" },
     { icon: FileText, label: "Laporan Transparan", color: "bg-gold", path: "/admin/laporan" },
     { icon: DollarSign, label: "Donasi Online", color: "bg-secondary", path: "/admin/donasi" },
