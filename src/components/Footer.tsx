@@ -39,7 +39,7 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {profile?.description || "Sistem pengelolaan masjid yang transparan, modern, dan penuh berkah. Memudahkan administrasi dengan sentuhan Islami."}
+              Sistem pengelolaan masjid yang transparan, modern, dan penuh berkah.
             </p>
           </div>
 
