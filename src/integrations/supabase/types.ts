@@ -356,6 +356,36 @@ export type Database = {
         }
         Relationships: []
       }
+      struktur_pengurus: {
+        Row: {
+          created_at: string | null
+          foto_url: string | null
+          id: string
+          jabatan: string
+          nama: string
+          updated_at: string | null
+          urutan_tampil: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          foto_url?: string | null
+          id?: string
+          jabatan: string
+          nama: string
+          updated_at?: string | null
+          urutan_tampil?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          foto_url?: string | null
+          id?: string
+          jabatan?: string
+          nama?: string
+          updated_at?: string | null
+          urutan_tampil?: number | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
