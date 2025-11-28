@@ -9,13 +9,14 @@ import {
   Heart, 
   Calendar, 
   TrendingUp, 
-  Users, 
+  Megaphone, 
   BookOpen,
   Sparkles,
   Moon,
   Star
 } from "lucide-react";
 import GalleryCarousel from "@/components/GalleryCarousel";
+import AnnouncementsList from "@/components/AnnouncementsList";
 
 export default function Index() {
   const features = [
@@ -23,7 +24,7 @@ export default function Index() {
       icon: Heart,
       title: "Donasi Online",
       description: "Kemudahan berdonasi kapan saja dengan sistem yang transparan dan aman.",
-      path: "/admin/donasi"
+      path: "/donasi"
     },
     {
       icon: Calendar,
@@ -38,10 +39,10 @@ export default function Index() {
       path: "/admin/laporan"
     },
     {
-      icon: Users,
-      title: "Manajemen Jamaah",
-      description: "Sistem pengelolaan data jamaah yang terstruktur dan mudah.",
-      path: "/admin/jamaah"
+      icon: Megaphone,
+      title: "Pengumuman",
+      description: "Informasi dan pengumuman terbaru langsung dari pengurus masjid.",
+      path: "#pengumuman"
     }
   ];
 
@@ -183,6 +184,11 @@ export default function Index() {
           </div>
         </div>
       </section>
+
+      {/* Announcements Section */}
+      <div id="pengumuman">
+        <AnnouncementsList />
+      </div>
 
       {/* Gallery Carousel Section */}
       <GalleryCarousel />
