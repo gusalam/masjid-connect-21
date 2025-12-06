@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Calendar, DollarSign, Package, Settings, FileText, Image, Bell, Moon, Star, Sparkles, LogOut } from "lucide-react";
+import { Users, Calendar, DollarSign, Package, Settings, FileText, Image, Bell, Moon, Star, Sparkles, LogOut, ClipboardList } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -174,7 +174,8 @@ export default function AdminDashboard() {
   const quickActions = [
     { icon: Bell, label: "Pengumuman", color: "bg-secondary", path: "/admin/pengumuman" },
     { icon: Calendar, label: "Tambah Kegiatan", color: "bg-accent", path: "/admin/kegiatan" },
-    { icon: FileText, label: "Laporan Transparan", color: "bg-gold", path: "/admin/laporan" },
+    { icon: ClipboardList, label: "Laporan Bendahara", color: "bg-gold", path: "/admin/laporan-bendahara" },
+    { icon: FileText, label: "Laporan Transparan", color: "bg-accent", path: "/admin/laporan" },
     { icon: DollarSign, label: "Donasi Online", color: "bg-secondary", path: "/admin/donasi" },
     { icon: Image, label: "Upload Galeri", color: "bg-gold", path: "/admin/galeri" },
     { icon: Settings, label: "Profil Masjid", color: "bg-muted-foreground", path: "/admin/profil-masjid" },

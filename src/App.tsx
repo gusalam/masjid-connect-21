@@ -19,6 +19,7 @@ import DonationsManagement from "./pages/admin/Donasi";
 import GalleryManagement from "./pages/admin/Galeri";
 import AdminInventaris from "./pages/admin/Inventaris";
 import PengumumanManagement from "./pages/admin/Pengumuman";
+import LaporanBendahara from "./pages/admin/LaporanBendahara";
 import BendaharaDashboard from "./pages/bendahara/Dashboard";
 import InputPemasukan from "./pages/bendahara/InputPemasukan";
 import InputPengeluaran from "./pages/bendahara/InputPengeluaran";
@@ -52,6 +53,7 @@ const App = () => (
           <Route path="/admin/galeri" element={<GalleryManagement />} />
           <Route path="/admin/inventaris" element={<AdminInventaris />} />
           <Route path="/admin/pengumuman" element={<PengumumanManagement />} />
+          <Route path="/admin/laporan-bendahara" element={<LaporanBendahara />} />
           <Route path="/bendahara/dashboard" element={<BendaharaDashboard />} />
           <Route path="/bendahara/input-pemasukan" element={<InputPemasukan />} />
           <Route path="/bendahara/input-pengeluaran" element={<InputPengeluaran />} />
