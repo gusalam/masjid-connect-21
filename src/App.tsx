@@ -16,6 +16,7 @@ import ActivitiesCMS from "./pages/admin/Activities";
 import JamaahManagement from "./pages/admin/Jamaah";
 import FinancialReports from "./pages/admin/Laporan";
 import DonationsManagement from "./pages/admin/Donasi";
+import DonasiCMS from "./pages/admin/DonasiCMS";
 import GalleryManagement from "./pages/admin/Galeri";
 import AdminInventaris from "./pages/admin/Inventaris";
 import PengumumanManagement from "./pages/admin/Pengumuman";
@@ -50,6 +51,7 @@ const App = () => (
           <Route path="/admin/jamaah" element={<JamaahManagement />} />
           <Route path="/admin/laporan" element={<FinancialReports />} />
           <Route path="/admin/donasi" element={<DonationsManagement />} />
+          <Route path="/admin/donasi-cms" element={<DonasiCMS />} />
           <Route path="/admin/galeri" element={<GalleryManagement />} />
           <Route path="/admin/inventaris" element={<AdminInventaris />} />
           <Route path="/admin/pengumuman" element={<PengumumanManagement />} />

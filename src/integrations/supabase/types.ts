@@ -137,6 +137,39 @@ export type Database = {
         }
         Relationships: []
       }
+      donasi: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          nama_donatur: string
+          nominal: number
+          status_tampil: boolean
+          tanggal_donasi: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nama_donatur: string
+          nominal: number
+          status_tampil?: boolean
+          tanggal_donasi?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nama_donatur?: string
+          nominal?: number
+          status_tampil?: boolean
+          tanggal_donasi?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       donations: {
         Row: {
           amount: number
