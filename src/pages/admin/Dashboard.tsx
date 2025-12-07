@@ -176,7 +176,7 @@ export default function AdminDashboard() {
     { icon: Calendar, label: "Tambah Kegiatan", color: "bg-accent", path: "/admin/kegiatan" },
     { icon: ClipboardList, label: "Laporan Bendahara", color: "bg-gold", path: "/admin/laporan-bendahara" },
     { icon: FileText, label: "Laporan Transparan", color: "bg-accent", path: "/admin/laporan" },
-    { icon: DollarSign, label: "Donasi Online", color: "bg-secondary", path: "/admin/donasi" },
+    { icon: DollarSign, label: "Kelola Donatur", color: "bg-secondary", path: "/admin/donasi-cms" },
     { icon: Image, label: "Upload Galeri", color: "bg-gold", path: "/admin/galeri" },
     { icon: Settings, label: "Profil Masjid", color: "bg-muted-foreground", path: "/admin/profil-masjid" },
   ];

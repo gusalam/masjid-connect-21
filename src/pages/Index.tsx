@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import GalleryCarousel from "@/components/GalleryCarousel";
 import AnnouncementsList from "@/components/AnnouncementsList";
+import DonaturList from "@/components/DonaturList";
 
 export default function Index() {
   const features = [
@@ -189,6 +190,9 @@ export default function Index() {
       <div id="pengumuman">
         <AnnouncementsList />
       </div>
+
+      {/* Donatur Section */}
+      <DonaturList />
 
       {/* Gallery Carousel Section */}
       <GalleryCarousel />
