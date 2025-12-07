@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,21 +9,46 @@ import { Heart, Star } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 
+interface Donasi {
+  id: string;
+  nama_donatur: string;
+  nominal: number;
+  tanggal_donasi: string;
+}
+
 export default function Donasi() {
   const navigate = useNavigate();
+  const [donaturList, setDonaturList] = useState<Donasi[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const { data: verifiedDonations } = useQuery({
-    queryKey: ["verified-donations"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("donations")
-        .select("*")
-        .eq("status", "verified")
-        .order("verified_at", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
-  });
+  const fetchDonatur = async () => {
+    const { data, error } = await supabase
+      .from("donasi")
+      .select("*")
+      .eq("status_tampil", true)
+      .order("tanggal_donasi", { ascending: false });
+    
+    if (!error && data) {
+      setDonaturList(data);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchDonatur();
+
+    // Real-time subscription
+    const channel = supabase
+      .channel('donasi-page')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'donasi' }, () => {
+        fetchDonatur();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -35,7 +59,7 @@ export default function Donasi() {
   };
 
   // Duplicate the array for seamless loop
-  const donorsList = verifiedDonations ? [...verifiedDonations, ...verifiedDonations] : [];
+  const donorsList = donaturList.length > 0 ? [...donaturList, ...donaturList] : [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -93,10 +117,14 @@ export default function Donasi() {
                 
                 {/* Scrolling Content */}
                 <div className="donors-scroll">
-                  {donorsList.length > 0 ? (
-                    donorsList.map((donation, index) => (
+                  {loading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <p className="text-muted-foreground">Memuat data donatur...</p>
+                    </div>
+                  ) : donorsList.length > 0 ? (
+                    donorsList.map((donatur, index) => (
                       <Card 
-                        key={`${donation.id}-${index}`}
+                        key={`${donatur.id}-${index}`}
                         className="mx-4 mb-4 p-6 bg-gradient-to-r from-card to-muted/50 border-gold/20 hover:border-gold/40 transition-all hover-scale"
                       >
                         <div className="flex items-center justify-between">
@@ -106,25 +134,24 @@ export default function Donasi() {
                             </div>
                             <div>
                               <h3 className="font-bold text-lg text-foreground">
-                                {donation.donor_name || "Hamba Allah"}
+                                {donatur.nama_donatur}
                               </h3>
                               <p className="text-sm text-muted-foreground">
-                                {format(new Date(donation.verified_at!), "d MMMM yyyy", { locale: id })}
+                                {format(new Date(donatur.tanggal_donasi), "d MMMM yyyy", { locale: id })}
                               </p>
                             </div>
                           </div>
                           <div className="text-right">
                             <p className="font-bold text-xl text-gold">
-                              {formatCurrency(Number(donation.amount))}
+                              {formatCurrency(Number(donatur.nominal))}
                             </p>
-                            <p className="text-xs text-muted-foreground">{donation.category}</p>
                           </div>
                         </div>
                       </Card>
                     ))
                   ) : (
                     <div className="flex items-center justify-center h-full">
-                      <p className="text-muted-foreground">Memuat data donatur...</p>
+                      <p className="text-muted-foreground">Belum ada data donatur</p>
                     </div>
                   )}
                 </div>
