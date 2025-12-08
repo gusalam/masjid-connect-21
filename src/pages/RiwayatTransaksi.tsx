@@ -1,12 +1,22 @@
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, DollarSign, TrendingUp, TrendingDown, ArrowLeft, History } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { 
+  DollarSign, 
+  TrendingUp, 
+  TrendingDown, 
+  ArrowLeft, 
+  Calendar,
+  FileText,
+  CheckCircle,
+  Clock
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
+import { Badge } from "@/components/ui/badge";
 
 interface Transaction {
   id: string;
@@ -15,6 +25,7 @@ interface Transaction {
   amount: number;
   description: string | null;
   transaction_date: string;
+  created_at: string | null;
 }
 
 interface Donation {
@@ -26,12 +37,24 @@ interface Donation {
   created_at: string | null;
 }
 
-export default function FinancialReports() {
+type CombinedTransaction = {
+  id: string;
+  type: "income" | "expense";
+  category: string;
+  amount: number;
+  description: string | null;
+  date: string;
+  source: "transaction" | "donation";
+  status?: string | null;
+};
+
+export default function RiwayatTransaksi() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: transactions = [], isLoading: loadingTransactions } = useQuery({
-    queryKey: ["laporan-transactions"],
+  // Fetch financial transactions
+  const { data: transactions = [] } = useQuery({
+    queryKey: ["all-transactions"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("financial_transactions")
@@ -42,13 +65,13 @@ export default function FinancialReports() {
     },
   });
 
-  const { data: donations = [], isLoading: loadingDonations } = useQuery({
-    queryKey: ["laporan-donations"],
+  // Fetch verified donations
+  const { data: donations = [] } = useQuery({
+    queryKey: ["verified-donations"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("donations")
         .select("*")
-        .eq("status", "verified")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Donation[];
@@ -58,23 +81,23 @@ export default function FinancialReports() {
   // Real-time subscriptions
   useEffect(() => {
     const transactionsChannel = supabase
-      .channel("laporan-transactions-changes")
+      .channel("riwayat-transactions-changes")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "financial_transactions" },
         () => {
-          queryClient.invalidateQueries({ queryKey: ["laporan-transactions"] });
+          queryClient.invalidateQueries({ queryKey: ["all-transactions"] });
         }
       )
       .subscribe();
 
     const donationsChannel = supabase
-      .channel("laporan-donations-changes")
+      .channel("riwayat-donations-changes")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "donations" },
         () => {
-          queryClient.invalidateQueries({ queryKey: ["laporan-donations"] });
+          queryClient.invalidateQueries({ queryKey: ["verified-donations"] });
         }
       )
       .subscribe();
@@ -85,20 +108,39 @@ export default function FinancialReports() {
     };
   }, [queryClient]);
 
-  const loading = loadingTransactions || loadingDonations;
+  // Combine transactions and donations
+  const combinedTransactions: CombinedTransaction[] = [
+    ...transactions.map((t) => ({
+      id: t.id,
+      type: t.type as "income" | "expense",
+      category: t.category,
+      amount: Number(t.amount),
+      description: t.description,
+      date: t.transaction_date,
+      source: "transaction" as const,
+    })),
+    ...donations
+      .filter((d) => d.status === "verified")
+      .map((d) => ({
+        id: d.id,
+        type: "income" as const,
+        category: `Donasi - ${d.category}`,
+        amount: Number(d.amount),
+        description: d.donor_name ? `Dari: ${d.donor_name}` : "Anonim",
+        date: d.created_at || new Date().toISOString(),
+        source: "donation" as const,
+        status: d.status,
+      })),
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  // Calculate totals including verified donations as income
-  const transactionIncome = transactions
+  // Calculate totals
+  const totalIncome = combinedTransactions
     .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + Number(t.amount), 0);
-  
-  const donationIncome = donations.reduce((sum, d) => sum + Number(d.amount), 0);
-  
-  const totalIncome = transactionIncome + donationIncome;
+    .reduce((sum, t) => sum + t.amount, 0);
 
-  const totalExpense = transactions
+  const totalExpense = combinedTransactions
     .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+    .reduce((sum, t) => sum + t.amount, 0);
 
   const balance = totalIncome - totalExpense;
 
@@ -110,11 +152,27 @@ export default function FinancialReports() {
     }).format(amount);
   };
 
-  // Recent transactions (last 10)
-  const recentTransactions = transactions.slice(0, 10);
+  const getStatusBadge = (status?: string | null) => {
+    if (!status) return null;
+    if (status === "verified") {
+      return (
+        <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
+          <CheckCircle className="w-3 h-3 mr-1" />
+          Terverifikasi
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="outline" className="bg-yellow-100 text-yellow-700 border-yellow-300">
+        <Clock className="w-3 h-3 mr-1" />
+        Pending
+      </Badge>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Header */}
       <div className="relative gradient-primary text-foreground p-6 shadow-lg">
         <div className="container mx-auto">
           <Button
@@ -125,22 +183,24 @@ export default function FinancialReports() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Kembali
           </Button>
-          <h1 className="text-3xl font-bold font-amiri">Laporan Keuangan</h1>
-          <p className="text-foreground/80 mt-1">Transparansi keuangan masjid - Data real-time dari database</p>
+          <h1 className="text-3xl font-bold font-amiri">Riwayat Transaksi</h1>
+          <p className="text-foreground/80 mt-1">
+            Seluruh riwayat transaksi keuangan masjid
+          </p>
         </div>
       </div>
 
       <div className="container mx-auto p-6 space-y-6">
+        {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="card-gold-border bg-card/60 backdrop-blur-sm">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Pemasukan</p>
+                  <p className="text-sm text-muted-foreground">Total Uang Masuk</p>
                   <p className="text-2xl font-bold text-green-600 mt-2">
                     {formatCurrency(totalIncome)}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">Termasuk {donations.length} donasi terverifikasi</p>
                 </div>
                 <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-xl">
                   <TrendingUp className="w-6 h-6 text-green-600" />
@@ -153,7 +213,7 @@ export default function FinancialReports() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Pengeluaran</p>
+                  <p className="text-sm text-muted-foreground">Total Uang Keluar</p>
                   <p className="text-2xl font-bold text-red-600 mt-2">
                     {formatCurrency(totalExpense)}
                   </p>
@@ -182,33 +242,35 @@ export default function FinancialReports() {
           </Card>
         </div>
 
+        {/* Transaction List */}
         <Card className="card-gold-border bg-card/60 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader>
             <CardTitle className="font-amiri flex items-center gap-2">
               <FileText className="w-5 h-5 text-gold" />
-              Riwayat Transaksi Terbaru
+              Semua Transaksi ({combinedTransactions.length})
             </CardTitle>
-            <Button variant="outline" size="sm" onClick={() => navigate('/riwayat-transaksi')} className="border-gold/30 hover:border-gold/50">
-              <History className="w-4 h-4 mr-2" />
-              Lihat Semua
-            </Button>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <p className="text-center text-muted-foreground py-8">Memuat data...</p>
-            ) : recentTransactions.length === 0 ? (
+            {combinedTransactions.length === 0 ? (
               <div className="text-center py-12">
                 <DollarSign className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
                 <p className="text-muted-foreground">Belum ada transaksi</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {recentTransactions.map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-gold/20">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                        transaction.type === "income" ? "bg-green-100 dark:bg-green-900/20" : "bg-red-100 dark:bg-red-900/20"
-                      }`}>
+                {combinedTransactions.map((transaction) => (
+                  <div
+                    key={`${transaction.source}-${transaction.id}`}
+                    className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-gold/20 hover:border-gold/40 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                          transaction.type === "income"
+                            ? "bg-green-100 dark:bg-green-900/20"
+                            : "bg-red-100 dark:bg-red-900/20"
+                        }`}
+                      >
                         {transaction.type === "income" ? (
                           <TrendingUp className="w-5 h-5 text-green-600" />
                         ) : (
@@ -216,18 +278,43 @@ export default function FinancialReports() {
                         )}
                       </div>
                       <div>
-                        <p className="font-medium">{transaction.category}</p>
-                        <p className="text-sm text-muted-foreground">{transaction.description || "-"}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {format(new Date(transaction.transaction_date), "d MMMM yyyy", { locale: localeId })}
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{transaction.category}</p>
+                          {transaction.source === "donation" && (
+                            <Badge variant="secondary" className="text-xs">
+                              Donasi
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {transaction.description || "-"}
                         </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {format(new Date(transaction.date), "d MMMM yyyy", {
+                              locale: localeId,
+                            })}
+                          </p>
+                          {transaction.status && getStatusBadge(transaction.status)}
+                        </div>
                       </div>
                     </div>
-                    <p className={`font-bold ${
-                      transaction.type === "income" ? "text-green-600" : "text-red-600"
-                    }`}>
-                      {transaction.type === "income" ? "+" : "-"}{formatCurrency(Number(transaction.amount))}
-                    </p>
+                    <div className="text-right">
+                      <p
+                        className={`font-bold text-lg ${
+                          transaction.type === "income"
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {transaction.type === "income" ? "+" : "-"}
+                        {formatCurrency(transaction.amount)}
+                      </p>
+                      <p className="text-xs text-muted-foreground capitalize">
+                        {transaction.type === "income" ? "Masuk" : "Keluar"}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>

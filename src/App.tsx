@@ -9,6 +9,7 @@ import Tentang from "./pages/Tentang";
 import Kegiatan from "./pages/Kegiatan";
 import Kontak from "./pages/Kontak";
 import Donasi from "./pages/Donasi";
+import RiwayatTransaksi from "./pages/RiwayatTransaksi";
 import AdminDashboard from "./pages/admin/Dashboard";
 import MosqueProfileCMS from "./pages/admin/MosqueProfile";
 import ActivitiesCMS from "./pages/admin/Activities";
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/kegiatan" element={<Kegiatan />} />
           <Route path="/kontak" element={<Kontak />} />
           <Route path="/donasi" element={<Donasi />} />
+          <Route path="/riwayat-transaksi" element={<RiwayatTransaksi />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/profil-masjid" element={<MosqueProfileCMS />} />
           <Route path="/admin/kegiatan" element={<ActivitiesCMS />} />

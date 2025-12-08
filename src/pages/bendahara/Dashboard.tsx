@@ -41,10 +41,23 @@ export default function BendaharaDashboard() {
     },
   });
 
+  // Fetch verified donations for financial calculation
+  const { data: verifiedDonations } = useQuery({
+    queryKey: ["verified-donations-bendahara"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("donations")
+        .select("*")
+        .eq("status", "verified");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   // Real-time subscriptions
   useEffect(() => {
     const transactionsChannel = supabase
-      .channel("transactions-changes")
+      .channel("bendahara-transactions-changes")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "financial_transactions" },
@@ -55,12 +68,13 @@ export default function BendaharaDashboard() {
       .subscribe();
 
     const donationsChannel = supabase
-      .channel("donations-changes")
+      .channel("bendahara-donations-changes")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "donations" },
         () => {
           queryClient.invalidateQueries({ queryKey: ["pending-donations"] });
+          queryClient.invalidateQueries({ queryKey: ["verified-donations-bendahara"] });
         }
       )
       .subscribe();
@@ -71,10 +85,15 @@ export default function BendaharaDashboard() {
     };
   }, [queryClient]);
 
-  // Calculate stats
-  const totalIncome = transactions
+  // Calculate stats - include verified donations as income
+  const transactionIncome = transactions
     ?.filter((t) => t.type === "income")
     .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+  
+  const donationIncome = verifiedDonations
+    ?.reduce((sum, d) => sum + Number(d.amount), 0) || 0;
+
+  const totalIncome = transactionIncome + donationIncome;
 
   const totalExpense = transactions
     ?.filter((t) => t.type === "expense")
