@@ -1,52 +1,72 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Calendar, DollarSign, Package, Settings, FileText, Image, Bell, Moon, Star, Sparkles, LogOut, ClipboardList } from "lucide-react";
+import { Users, Calendar, DollarSign, Package, Settings, FileText, Image, Bell, Moon, Star, Sparkles, LogOut, ClipboardList, TrendingUp, TrendingDown, History } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
+import { format } from "date-fns";
+import { id as localeId } from "date-fns/locale";
 
 interface Stats {
   totalJamaah: number;
-  totalKas: number;
+  totalIncome: number;
+  totalExpense: number;
+  balance: number;
   kegiatanAktif: number;
   totalAset: number;
 }
 
-interface Activity {
+interface Transaction {
   id: string;
-  title: string;
-  activity_date: string;
-  activity_time: string;
+  type: string;
+  category: string;
+  amount: number;
+  description: string | null;
+  transaction_date: string;
 }
 
 interface Donation {
   id: string;
   donor_name: string | null;
   amount: number;
+  category: string;
+  status: string | null;
   created_at: string;
 }
+
+type CombinedTransaction = {
+  id: string;
+  type: "income" | "expense";
+  category: string;
+  amount: number;
+  description: string | null;
+  date: string;
+  source: "transaction" | "donation";
+};
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [stats, setStats] = useState<Stats>({
     totalJamaah: 0,
-    totalKas: 0,
+    totalIncome: 0,
+    totalExpense: 0,
+    balance: 0,
     kegiatanAktif: 0,
     totalAset: 0
   });
-  const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
-  const [recentDonations, setRecentDonations] = useState<Donation[]>([]);
+  const [recentActivities, setRecentActivities] = useState<{ id: string; title: string; activity_date: string; activity_time: string }[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<CombinedTransaction[]>([]);
 
   useEffect(() => {
     fetchStats();
     fetchRecentActivities();
-    fetchRecentDonations();
+    fetchRecentTransactions();
 
     // Real-time subscriptions
     const activitiesChannel = supabase
-      .channel('activities-changes')
+      .channel('admin-activities-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'activities' }, () => {
         fetchStats();
         fetchRecentActivities();
@@ -54,28 +74,30 @@ export default function AdminDashboard() {
       .subscribe();
 
     const transactionsChannel = supabase
-      .channel('transactions-changes')
+      .channel('admin-transactions-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'financial_transactions' }, () => {
         fetchStats();
+        fetchRecentTransactions();
       })
       .subscribe();
 
     const donationsChannel = supabase
-      .channel('donations-changes')
+      .channel('admin-donations-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'donations' }, () => {
-        fetchRecentDonations();
+        fetchStats();
+        fetchRecentTransactions();
       })
       .subscribe();
 
     const profilesChannel = supabase
-      .channel('profiles-changes')
+      .channel('admin-profiles-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
         fetchStats();
       })
       .subscribe();
 
     const assetsChannel = supabase
-      .channel('assets-changes')
+      .channel('admin-assets-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'assets' }, () => {
         fetchStats();
       })
@@ -92,21 +114,30 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      const [profilesRes, transactionsRes, activitiesRes, assetsRes] = await Promise.all([
+      const [profilesRes, transactionsRes, donationsRes, activitiesRes, assetsRes] = await Promise.all([
         supabase.from('profiles').select('id', { count: 'exact', head: true }),
         supabase.from('financial_transactions').select('amount, type'),
+        supabase.from('donations').select('amount, status').eq('status', 'verified'),
         supabase.from('activities').select('id', { count: 'exact', head: true }),
         supabase.from('assets').select('id', { count: 'exact', head: true })
       ]);
 
-      // Calculate total kas: sum of income - sum of expenses
-      const totalIncome = transactionsRes.data?.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0) || 0;
-      const totalExpense = transactionsRes.data?.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0) || 0;
-      const totalKas = totalIncome - totalExpense;
+      // Calculate income from transactions
+      const transactionIncome = transactionsRes.data?.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+      const transactionExpense = transactionsRes.data?.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+      
+      // Add verified donations to income
+      const donationIncome = donationsRes.data?.reduce((sum, d) => sum + Number(d.amount), 0) || 0;
+      
+      const totalIncome = transactionIncome + donationIncome;
+      const totalExpense = transactionExpense;
+      const balance = totalIncome - totalExpense;
 
       setStats({
         totalJamaah: profilesRes.count || 0,
-        totalKas: totalKas,
+        totalIncome,
+        totalExpense,
+        balance,
         kegiatanAktif: activitiesRes.count || 0,
         totalAset: assetsRes.count || 0
       });
@@ -130,19 +161,52 @@ export default function AdminDashboard() {
     }
   };
 
-  const fetchRecentDonations = async () => {
+  const fetchRecentTransactions = async () => {
     try {
-      const { data, error } = await supabase
-        .from('donations')
-        .select('id, donor_name, amount, created_at')
-        .order('created_at', { ascending: false })
-        .limit(3);
+      const [transactionsRes, donationsRes] = await Promise.all([
+        supabase.from('financial_transactions').select('*').order('transaction_date', { ascending: false }).limit(5),
+        supabase.from('donations').select('*').eq('status', 'verified').order('created_at', { ascending: false }).limit(5)
+      ]);
 
-      if (error) throw error;
-      setRecentDonations(data || []);
+      if (transactionsRes.error) throw transactionsRes.error;
+      if (donationsRes.error) throw donationsRes.error;
+
+      const transactions: CombinedTransaction[] = (transactionsRes.data || []).map((t: Transaction) => ({
+        id: t.id,
+        type: t.type as "income" | "expense",
+        category: t.category,
+        amount: Number(t.amount),
+        description: t.description,
+        date: t.transaction_date,
+        source: "transaction" as const
+      }));
+
+      const donations: CombinedTransaction[] = (donationsRes.data || []).map((d: Donation) => ({
+        id: d.id,
+        type: "income" as const,
+        category: `Donasi - ${d.category}`,
+        amount: Number(d.amount),
+        description: d.donor_name ? `Dari: ${d.donor_name}` : "Anonim",
+        date: d.created_at,
+        source: "donation" as const
+      }));
+
+      const combined = [...transactions, ...donations]
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 5);
+
+      setRecentTransactions(combined);
     } catch (error) {
-      console.error('Error fetching donations:', error);
+      console.error('Error fetching transactions:', error);
     }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(amount);
   };
 
   const handleLogout = async () => {
@@ -165,16 +229,16 @@ export default function AdminDashboard() {
   };
   
   const statsDisplay = [
-    { icon: Users, label: "Total Jamaah", value: stats.totalJamaah.toString(), change: "Real-time", color: "secondary", clickable: false },
-    { icon: DollarSign, label: "Kas Masjid", value: `Rp ${stats.totalKas.toLocaleString('id-ID')}`, change: "Verified", color: "gold", clickable: false },
-    { icon: Calendar, label: "Kegiatan Aktif", value: stats.kegiatanAktif.toString(), change: "Real-time", color: "accent", clickable: false },
+    { icon: DollarSign, label: "Saldo Kas", value: formatCurrency(stats.balance), change: "Real-time", color: "gold", clickable: true, link: "/riwayat-transaksi" },
+    { icon: TrendingUp, label: "Total Pemasukan", value: formatCurrency(stats.totalIncome), change: "Termasuk donasi", color: "secondary", clickable: true, link: "/riwayat-transaksi" },
+    { icon: TrendingDown, label: "Total Pengeluaran", value: formatCurrency(stats.totalExpense), change: "Real-time", color: "accent", clickable: true, link: "/riwayat-transaksi" },
     { icon: Package, label: "Total Aset", value: stats.totalAset.toString(), change: "Inventaris", color: "gold", clickable: true, link: "/admin/inventaris" },
   ];
 
   const quickActions = [
     { icon: Bell, label: "Pengumuman", color: "bg-secondary", path: "/admin/pengumuman" },
-    { icon: Calendar, label: "Tambah Kegiatan", color: "bg-accent", path: "/admin/kegiatan" },
-    { icon: ClipboardList, label: "Laporan Bendahara", color: "bg-gold", path: "/admin/laporan-bendahara" },
+    { icon: History, label: "Riwayat Transaksi", color: "bg-gold", path: "/riwayat-transaksi" },
+    { icon: ClipboardList, label: "Laporan Bendahara", color: "bg-accent", path: "/admin/laporan-bendahara" },
     { icon: FileText, label: "Laporan Transparan", color: "bg-accent", path: "/admin/laporan" },
     { icon: DollarSign, label: "Kelola Donatur", color: "bg-secondary", path: "/admin/donasi-cms" },
     { icon: Image, label: "Upload Galeri", color: "bg-gold", path: "/admin/galeri" },
@@ -304,33 +368,47 @@ export default function AdminDashboard() {
           </Card>
 
           <Card className="card-gold-border bg-card/60 backdrop-blur-sm">
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="font-amiri flex items-center gap-2">
                 <DollarSign className="w-5 h-5 text-gold" />
                 Transaksi Terbaru
               </CardTitle>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/riwayat-transaksi')} className="text-gold hover:text-gold/80">
+                Lihat Semua
+              </Button>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentDonations.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-4">Belum ada donasi</p>
+                {recentTransactions.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-4">Belum ada transaksi</p>
                 ) : (
-                  recentDonations.map((donation) => (
-                    <div key={donation.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-gold/20 hover-lift">
+                  recentTransactions.map((transaction) => (
+                    <div key={`${transaction.source}-${transaction.id}`} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-gold/20 hover-lift">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gold/10 border border-gold/30 rounded-lg flex items-center justify-center">
-                          <DollarSign className="w-5 h-5 text-gold" />
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                          transaction.type === 'income' 
+                            ? 'bg-green-100 dark:bg-green-900/20' 
+                            : 'bg-red-100 dark:bg-red-900/20'
+                        }`}>
+                          {transaction.type === 'income' ? (
+                            <TrendingUp className="w-5 h-5 text-green-600" />
+                          ) : (
+                            <TrendingDown className="w-5 h-5 text-red-600" />
+                          )}
                         </div>
                         <div>
-                          <p className="font-medium">{donation.donor_name || 'Anonim'}</p>
+                          <p className="font-medium">{transaction.category}</p>
                           <p className="text-sm text-muted-foreground">
-                            {new Date(donation.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                            {format(new Date(transaction.date), 'd MMM yyyy', { locale: localeId })}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-gold">+Rp {donation.amount.toLocaleString('id-ID')}</p>
-                        <Star className="w-3 h-3 text-gold ml-auto animate-pulse" />
+                        <p className={`font-bold ${
+                          transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                        </p>
                       </div>
                     </div>
                   ))
