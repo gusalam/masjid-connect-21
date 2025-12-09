@@ -5,15 +5,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Mail, Lock, User, Moon, Star } from "lucide-react";
+import { Building2, Mail, Lock, User, Moon, Star, MapPin, Phone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -27,6 +30,35 @@ export default function Login() {
       });
 
       if (error) throw error;
+
+      // Check profile status
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('status')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profileData?.status === 'pending') {
+        await supabase.auth.signOut();
+        toast({
+          variant: "destructive",
+          title: "Akun Menunggu Persetujuan",
+          description: "Akun Anda menunggu persetujuan admin. Silakan tunggu konfirmasi."
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (profileData?.status === 'rejected') {
+        await supabase.auth.signOut();
+        toast({
+          variant: "destructive",
+          title: "Akun Ditolak",
+          description: "Maaf, pendaftaran Anda ditolak. Silakan hubungi admin untuk informasi lebih lanjut."
+        });
+        setIsLoading(false);
+        return;
+      }
 
       toast({
         title: "Login Berhasil",
@@ -75,8 +107,15 @@ export default function Login() {
 
       if (error) throw error;
 
-      // Assign jamaah role
+      // Update profile with additional data and set status to pending
       if (data.user) {
+        await supabase.from('profiles').update({
+          phone,
+          address,
+          status: 'pending'
+        }).eq('id', data.user.id);
+
+        // Assign jamaah role
         await supabase.from('user_roles').insert({
           user_id: data.user.id,
           role: 'jamaah'
@@ -85,13 +124,18 @@ export default function Login() {
 
       toast({
         title: "Pendaftaran Berhasil",
-        description: "Silakan cek email untuk verifikasi akun Anda"
+        description: "Akun Anda sedang menunggu persetujuan admin. Silakan tunggu konfirmasi."
       });
+
+      // Sign out after registration (pending approval)
+      await supabase.auth.signOut();
 
       // Reset form
       setEmail("");
       setPassword("");
       setFullName("");
+      setPhone("");
+      setAddress("");
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -205,6 +249,21 @@ export default function Login() {
                   </div>
 
                   <div className="space-y-2">
+                    <Label htmlFor="register-phone">No. Telepon</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="register-phone"
+                        type="tel"
+                        placeholder="08xxxxxxxxxx"
+                        className="pl-10"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
                     <Label htmlFor="register-email">Email</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
@@ -216,6 +275,20 @@ export default function Login() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="register-address">Alamat</Label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                      <Textarea
+                        id="register-address"
+                        placeholder="Alamat lengkap"
+                        className="pl-10 min-h-[60px]"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
                       />
                     </div>
                   </div>
@@ -235,6 +308,10 @@ export default function Login() {
                         minLength={6}
                       />
                     </div>
+                  </div>
+
+                  <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                    <p>📋 Setelah mendaftar, akun Anda akan menunggu persetujuan admin.</p>
                   </div>
 
                   <Button
