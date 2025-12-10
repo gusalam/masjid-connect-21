@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Building2, Mail, Lock, User, Moon, Star, MapPin, Phone } from "lucide-r
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,6 +20,60 @@ export default function Login() {
   const [address, setAddress] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        redirectBasedOnRole(session.user.id);
+      }
+    };
+    checkSession();
+  }, []);
+
+  const redirectBasedOnRole = async (userId: string) => {
+    try {
+      // Get user role
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
+
+      if (!roleData) {
+        navigate('/');
+        return;
+      }
+
+      // For admin and bendahara, redirect directly
+      if (roleData.role === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+        return;
+      }
+
+      if (roleData.role === 'bendahara') {
+        navigate('/bendahara/dashboard', { replace: true });
+        return;
+      }
+
+      // For jamaah, check profile status
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('status')
+        .eq('id', userId)
+        .single();
+
+      if (profileData?.status === 'approved') {
+        navigate('/jamaah/dashboard', { replace: true });
+      } else {
+        // Not approved, sign out
+        await supabase.auth.signOut();
+      }
+    } catch (error) {
+      console.error('Role check error:', error);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +99,7 @@ export default function Login() {
           title: "Login Berhasil",
           description: "Selamat datang, Admin!"
         });
-        navigate('/admin/dashboard');
+        navigate('/admin/dashboard', { replace: true });
         return;
       }
 
@@ -53,7 +108,7 @@ export default function Login() {
           title: "Login Berhasil",
           description: "Selamat datang, Bendahara!"
         });
-        navigate('/bendahara/dashboard');
+        navigate('/bendahara/dashboard', { replace: true });
         return;
       }
 
@@ -90,7 +145,7 @@ export default function Login() {
         title: "Login Berhasil",
         description: "Selamat datang kembali!"
       });
-      navigate('/jamaah/dashboard');
+      navigate('/jamaah/dashboard', { replace: true });
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -218,10 +273,9 @@ export default function Login() {
                   <div className="space-y-2">
                     <Label htmlFor="login-password">Password</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                      <Input
+                      <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground z-10" />
+                      <PasswordInput
                         id="login-password"
-                        type="password"
                         placeholder="••••••••"
                         className="pl-10"
                         value={password}
@@ -308,10 +362,9 @@ export default function Login() {
                   <div className="space-y-2">
                     <Label htmlFor="register-password">Password</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                      <Input
+                      <Lock className="absolute left-3 top-3 w-4 h-4 text-muted-foreground z-10" />
+                      <PasswordInput
                         id="register-password"
-                        type="password"
                         placeholder="Minimal 6 karakter"
                         className="pl-10"
                         value={password}
