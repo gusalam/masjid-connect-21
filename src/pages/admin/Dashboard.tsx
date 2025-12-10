@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Calendar, DollarSign, Package, Settings, FileText, Image, Bell, Moon, Star, Sparkles, LogOut, ClipboardList, TrendingUp, TrendingDown, History } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface Stats {
   totalJamaah: number;
@@ -48,6 +50,7 @@ type CombinedTransaction = {
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [stats, setStats] = useState<Stats>({
     totalJamaah: 0,
     totalIncome: 0,
@@ -249,28 +252,30 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="relative gradient-primary text-foreground p-6 shadow-lg overflow-hidden">
+      <div className="relative gradient-primary text-foreground p-4 md:p-6 shadow-lg overflow-hidden">
         <div className="absolute inset-0 stars-pattern opacity-20" />
         <div className="absolute inset-0 islamic-pattern opacity-10" />
-        <Star className="absolute top-4 right-10 w-5 h-5 text-gold animate-pulse opacity-60" />
-        <Star className="absolute bottom-4 right-32 w-4 h-4 text-gold animate-pulse opacity-40" />
+        <Star className="absolute top-4 right-10 w-5 h-5 text-gold animate-pulse opacity-60 hidden md:block" />
+        <Star className="absolute bottom-4 right-32 w-4 h-4 text-gold animate-pulse opacity-40 hidden md:block" />
         
         <div className="container mx-auto relative z-10">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <Moon className="w-8 h-8 text-gold animate-pulse" />
-                <Sparkles className="w-6 h-6 text-secondary animate-pulse" />
+                <Moon className="w-6 h-6 md:w-8 md:h-8 text-gold animate-pulse" />
+                <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-secondary animate-pulse" />
               </div>
-              <h1 className="text-3xl font-bold font-amiri">Dashboard Admin</h1>
-              <p className="text-foreground/80 mt-1">
-                السَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ - Kelola seluruh sistem masjid di sini
+              <h1 className="text-2xl md:text-3xl font-bold font-amiri">Dashboard Admin</h1>
+              <p className="text-foreground/80 mt-1 text-sm md:text-base leading-relaxed">
+                <span className="block md:inline">السَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ</span>
+                <span className="hidden md:inline"> - </span>
+                <span className="block md:inline">Kelola seluruh sistem masjid di sini</span>
               </p>
             </div>
             <Button 
-              onClick={handleLogout} 
+              onClick={() => setShowLogoutDialog(true)} 
               variant="outline" 
-              className="border-gold/30 hover:border-gold/50 hover:bg-gold/10"
+              className="border-gold/30 hover:border-gold/50 hover:bg-gold/10 w-full md:w-auto"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Logout
@@ -279,27 +284,27 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="container mx-auto p-6 space-y-8">
+      <div className="container mx-auto p-4 md:p-6 space-y-6 md:space-y-8">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
           {statsDisplay.map((stat, index) => (
             <Card 
               key={index} 
               className={`hover-lift card-gold-border bg-card/60 backdrop-blur-sm ${stat.clickable ? 'cursor-pointer' : ''}`}
               onClick={() => stat.clickable && stat.link && navigate(stat.link)}
             >
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
-                    <p className="text-2xl font-bold mt-2 font-amiri">{stat.value}</p>
+              <CardContent className="p-3 md:pt-6 md:p-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-xs md:text-sm text-muted-foreground font-medium truncate">{stat.label}</p>
+                    <p className="text-lg md:text-2xl font-bold mt-1 md:mt-2 font-amiri truncate">{stat.value}</p>
                     <p className={`text-xs text-${stat.color} mt-1 flex items-center gap-1`}>
-                      <Star className="w-3 h-3" />
-                      {stat.change}
+                      <Star className="w-3 h-3 flex-shrink-0" />
+                      <span className="truncate">{stat.change}</span>
                     </p>
                   </div>
-                  <div className={`p-3 bg-${stat.color}/10 border border-${stat.color}/30 rounded-xl`}>
-                    <stat.icon className={`w-6 h-6 text-${stat.color}`} />
+                  <div className={`p-2 md:p-3 bg-${stat.color}/10 border border-${stat.color}/30 rounded-xl self-start md:self-auto`}>
+                    <stat.icon className={`w-5 h-5 md:w-6 md:h-6 text-${stat.color}`} />
                   </div>
                 </div>
               </CardContent>
@@ -309,25 +314,25 @@ export default function AdminDashboard() {
 
         {/* Quick Actions */}
         <Card className="card-gold-border bg-card/60 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="font-amiri flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-gold" />
+          <CardHeader className="pb-3 md:pb-6">
+            <CardTitle className="font-amiri flex items-center gap-2 text-lg md:text-xl">
+              <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-gold" />
               Aksi Cepat
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
               {quickActions.map((action, index) => (
                 <Button
                   key={index}
                   variant="outline"
                   onClick={() => action.path !== "#" && navigate(action.path)}
-                  className="h-24 flex flex-col gap-2 hover:border-gold/50 border-gold/30 bg-card/40 backdrop-blur-sm hover-lift"
+                  className="h-20 md:h-24 flex flex-col gap-1 md:gap-2 hover:border-gold/50 border-gold/30 bg-card/40 backdrop-blur-sm hover-lift p-2"
                 >
-                  <div className={`p-2 ${action.color} rounded-lg`}>
-                    <action.icon className="w-5 h-5 text-white" />
+                  <div className={`p-1.5 md:p-2 ${action.color} rounded-lg`}>
+                    <action.icon className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
-                  <span className="text-xs text-center">{action.label}</span>
+                  <span className="text-[10px] md:text-xs text-center leading-tight">{action.label}</span>
                 </Button>
               ))}
             </div>
@@ -335,32 +340,34 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Recent Activities */}
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-2 gap-4 md:gap-6">
           <Card className="card-gold-border bg-card/60 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="font-amiri flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-gold" />
+            <CardHeader className="pb-3 md:pb-6">
+              <CardTitle className="font-amiri flex items-center gap-2 text-lg md:text-xl">
+                <Calendar className="w-4 h-4 md:w-5 md:h-5 text-gold" />
                 Kegiatan Terbaru
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {recentActivities.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-4">Belum ada kegiatan</p>
+                  <p className="text-center text-muted-foreground py-4 text-sm">Belum ada kegiatan</p>
                 ) : (
                   recentActivities.map((activity) => (
-                    <div key={activity.id} className="flex items-center gap-4 p-3 bg-muted/30 rounded-lg border border-gold/20 hover-lift">
-                      <div className="w-10 h-10 bg-gold/10 border border-gold/30 rounded-lg flex items-center justify-center">
-                        <Calendar className="w-5 h-5 text-gold" />
+                    <div key={activity.id} className="flex items-center gap-3 md:gap-4 p-2 md:p-3 bg-muted/30 rounded-lg border border-gold/20 hover-lift">
+                      <div className="w-8 h-8 md:w-10 md:h-10 bg-gold/10 border border-gold/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Calendar className="w-4 h-4 md:w-5 md:h-5 text-gold" />
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{activity.title}</p>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
-                          <Moon className="w-3 h-3" />
-                          {new Date(activity.activity_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} • {activity.activity_time}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm md:text-base truncate">{activity.title}</p>
+                        <p className="text-xs md:text-sm text-muted-foreground flex items-center gap-1">
+                          <Moon className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">
+                            {new Date(activity.activity_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} • {activity.activity_time}
+                          </span>
                         </p>
                       </div>
-                      <Star className="w-4 h-4 text-gold animate-pulse" />
+                      <Star className="w-4 h-4 text-gold animate-pulse flex-shrink-0 hidden sm:block" />
                     </div>
                   ))
                 )}
@@ -369,43 +376,43 @@ export default function AdminDashboard() {
           </Card>
 
           <Card className="card-gold-border bg-card/60 backdrop-blur-sm">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="font-amiri flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-gold" />
+            <CardHeader className="flex flex-row items-center justify-between pb-3 md:pb-6">
+              <CardTitle className="font-amiri flex items-center gap-2 text-lg md:text-xl">
+                <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-gold" />
                 Transaksi Terbaru
               </CardTitle>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/riwayat-transaksi')} className="text-gold hover:text-gold/80">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/riwayat-transaksi')} className="text-gold hover:text-gold/80 text-xs md:text-sm">
                 Lihat Semua
               </Button>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {recentTransactions.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-4">Belum ada transaksi</p>
+                  <p className="text-center text-muted-foreground py-4 text-sm">Belum ada transaksi</p>
                 ) : (
                   recentTransactions.map((transaction) => (
-                    <div key={`${transaction.source}-${transaction.id}`} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-gold/20 hover-lift">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    <div key={`${transaction.source}-${transaction.id}`} className="flex items-center justify-between p-2 md:p-3 bg-muted/30 rounded-lg border border-gold/20 hover-lift gap-2">
+                      <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                        <div className={`w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
                           transaction.type === 'income' 
                             ? 'bg-green-100 dark:bg-green-900/20' 
                             : 'bg-red-100 dark:bg-red-900/20'
                         }`}>
                           {transaction.type === 'income' ? (
-                            <TrendingUp className="w-5 h-5 text-green-600" />
+                            <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
                           ) : (
-                            <TrendingDown className="w-5 h-5 text-red-600" />
+                            <TrendingDown className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
                           )}
                         </div>
-                        <div>
-                          <p className="font-medium">{transaction.category}</p>
-                          <p className="text-sm text-muted-foreground">
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm md:text-base truncate">{transaction.category}</p>
+                          <p className="text-xs md:text-sm text-muted-foreground truncate">
                             {format(new Date(transaction.date), 'd MMM yyyy', { locale: localeId })}
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className={`font-bold ${
+                      <div className="text-right flex-shrink-0">
+                        <p className={`font-bold text-xs md:text-base ${
                           transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
                         }`}>
                           {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
@@ -419,6 +426,17 @@ export default function AdminDashboard() {
           </Card>
         </div>
       </div>
+
+      {/* Logout Confirmation Dialog */}
+      <ConfirmDialog
+        open={showLogoutDialog}
+        onOpenChange={setShowLogoutDialog}
+        title="Konfirmasi Logout"
+        description="Apakah Anda yakin ingin keluar dari sistem?"
+        confirmText="Ya, Logout"
+        cancelText="Batal"
+        onConfirm={handleLogout}
+      />
     </div>
   );
 }
