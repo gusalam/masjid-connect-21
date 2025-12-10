@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Tentang from "./pages/Tentang";
@@ -27,6 +28,9 @@ import InputPengeluaran from "./pages/bendahara/InputPengeluaran";
 import BuatLaporan from "./pages/bendahara/BuatLaporan";
 import BendaharaInventaris from "./pages/bendahara/Inventaris";
 import JamaahDashboard from "./pages/jamaah/Dashboard";
+import JamaahProfil from "./pages/jamaah/Profil";
+import JamaahDonasi from "./pages/jamaah/Donasi";
+import JamaahRiwayatDonasi from "./pages/jamaah/RiwayatDonasi";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +42,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Login />} />
@@ -46,23 +51,113 @@ const App = () => (
           <Route path="/kontak" element={<Kontak />} />
           <Route path="/donasi" element={<Donasi />} />
           <Route path="/riwayat-transaksi" element={<RiwayatTransaksi />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/profil-masjid" element={<MosqueProfileCMS />} />
-          <Route path="/admin/kegiatan" element={<ActivitiesCMS />} />
-          <Route path="/admin/jamaah" element={<JamaahManagement />} />
-          <Route path="/admin/laporan" element={<FinancialReports />} />
-          <Route path="/admin/donasi" element={<DonationsManagement />} />
-          <Route path="/admin/donasi-cms" element={<DonasiCMS />} />
-          <Route path="/admin/galeri" element={<GalleryManagement />} />
-          <Route path="/admin/inventaris" element={<AdminInventaris />} />
-          <Route path="/admin/pengumuman" element={<PengumumanManagement />} />
-          <Route path="/admin/laporan-bendahara" element={<LaporanBendahara />} />
-          <Route path="/bendahara/dashboard" element={<BendaharaDashboard />} />
-          <Route path="/bendahara/input-pemasukan" element={<InputPemasukan />} />
-          <Route path="/bendahara/input-pengeluaran" element={<InputPengeluaran />} />
-          <Route path="/bendahara/buat-laporan" element={<BuatLaporan />} />
-          <Route path="/bendahara/inventaris" element={<BendaharaInventaris />} />
-          <Route path="/jamaah/dashboard" element={<JamaahDashboard />} />
+          
+          {/* Admin Routes - Protected */}
+          <Route path="/admin/dashboard" element={
+            <ProtectedRoute allowedRoles={['admin']} requireApproval={false}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/profil-masjid" element={
+            <ProtectedRoute allowedRoles={['admin']} requireApproval={false}>
+              <MosqueProfileCMS />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/kegiatan" element={
+            <ProtectedRoute allowedRoles={['admin']} requireApproval={false}>
+              <ActivitiesCMS />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/jamaah" element={
+            <ProtectedRoute allowedRoles={['admin']} requireApproval={false}>
+              <JamaahManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/laporan" element={
+            <ProtectedRoute allowedRoles={['admin']} requireApproval={false}>
+              <FinancialReports />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/donasi" element={
+            <ProtectedRoute allowedRoles={['admin']} requireApproval={false}>
+              <DonationsManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/donasi-cms" element={
+            <ProtectedRoute allowedRoles={['admin']} requireApproval={false}>
+              <DonasiCMS />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/galeri" element={
+            <ProtectedRoute allowedRoles={['admin']} requireApproval={false}>
+              <GalleryManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/inventaris" element={
+            <ProtectedRoute allowedRoles={['admin']} requireApproval={false}>
+              <AdminInventaris />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/pengumuman" element={
+            <ProtectedRoute allowedRoles={['admin']} requireApproval={false}>
+              <PengumumanManagement />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/laporan-bendahara" element={
+            <ProtectedRoute allowedRoles={['admin']} requireApproval={false}>
+              <LaporanBendahara />
+            </ProtectedRoute>
+          } />
+          
+          {/* Bendahara Routes - Protected */}
+          <Route path="/bendahara/dashboard" element={
+            <ProtectedRoute allowedRoles={['bendahara']} requireApproval={false}>
+              <BendaharaDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/bendahara/input-pemasukan" element={
+            <ProtectedRoute allowedRoles={['bendahara']} requireApproval={false}>
+              <InputPemasukan />
+            </ProtectedRoute>
+          } />
+          <Route path="/bendahara/input-pengeluaran" element={
+            <ProtectedRoute allowedRoles={['bendahara']} requireApproval={false}>
+              <InputPengeluaran />
+            </ProtectedRoute>
+          } />
+          <Route path="/bendahara/buat-laporan" element={
+            <ProtectedRoute allowedRoles={['bendahara']} requireApproval={false}>
+              <BuatLaporan />
+            </ProtectedRoute>
+          } />
+          <Route path="/bendahara/inventaris" element={
+            <ProtectedRoute allowedRoles={['bendahara']} requireApproval={false}>
+              <BendaharaInventaris />
+            </ProtectedRoute>
+          } />
+          
+          {/* Jamaah Routes - Protected with approval check */}
+          <Route path="/jamaah/dashboard" element={
+            <ProtectedRoute allowedRoles={['jamaah']} requireApproval={true}>
+              <JamaahDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/jamaah/profil" element={
+            <ProtectedRoute allowedRoles={['jamaah']} requireApproval={true}>
+              <JamaahProfil />
+            </ProtectedRoute>
+          } />
+          <Route path="/jamaah/donasi" element={
+            <ProtectedRoute allowedRoles={['jamaah']} requireApproval={true}>
+              <JamaahDonasi />
+            </ProtectedRoute>
+          } />
+          <Route path="/jamaah/riwayat-donasi" element={
+            <ProtectedRoute allowedRoles={['jamaah']} requireApproval={true}>
+              <JamaahRiwayatDonasi />
+            </ProtectedRoute>
+          } />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

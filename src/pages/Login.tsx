@@ -31,7 +31,33 @@ export default function Login() {
 
       if (error) throw error;
 
-      // Check profile status
+      // Check user role first
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', data.user.id)
+        .single();
+
+      // Admin and Bendahara don't need approval check
+      if (roleData?.role === 'admin') {
+        toast({
+          title: "Login Berhasil",
+          description: "Selamat datang, Admin!"
+        });
+        navigate('/admin/dashboard');
+        return;
+      }
+
+      if (roleData?.role === 'bendahara') {
+        toast({
+          title: "Login Berhasil",
+          description: "Selamat datang, Bendahara!"
+        });
+        navigate('/bendahara/dashboard');
+        return;
+      }
+
+      // For jamaah, check profile status
       const { data: profileData } = await supabase
         .from('profiles')
         .select('status')
@@ -64,21 +90,7 @@ export default function Login() {
         title: "Login Berhasil",
         description: "Selamat datang kembali!"
       });
-
-      // Check user role and redirect accordingly
-      const { data: roleData } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', data.user.id)
-        .single();
-
-      if (roleData?.role === 'admin') {
-        navigate('/admin/dashboard');
-      } else if (roleData?.role === 'bendahara') {
-        navigate('/bendahara/dashboard');
-      } else {
-        navigate('/jamaah/dashboard');
-      }
+      navigate('/jamaah/dashboard');
     } catch (error: any) {
       toast({
         variant: "destructive",
