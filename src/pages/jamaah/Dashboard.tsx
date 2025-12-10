@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
+import { useNotifications } from "@/hooks/useNotifications";
 
 interface Profile {
   id: string;
@@ -56,6 +57,7 @@ export default function JamaahDashboard() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { notifications, unreadCount } = useNotifications();
 
   useEffect(() => {
     fetchData();
@@ -251,6 +253,15 @@ export default function JamaahDashboard() {
               <p className="text-primary-foreground/80 mt-1">Selamat beraktivitas di hari yang penuh berkah.</p>
             </div>
             <div className="flex gap-2">
+              <Button variant="secondary" size="sm" className="relative">
+                <Bell className="w-4 h-4 mr-2" />
+                Notifikasi
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </Button>
               <Link to="/jamaah/profil">
                 <Button variant="secondary" size="sm">
                   <User className="w-4 h-4 mr-2" />

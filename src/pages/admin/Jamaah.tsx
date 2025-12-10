@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Users, Search, Phone, MapPin, Check, X, Eye, Pencil, Trash2, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Users, Search, Phone, MapPin, Check, X, Eye, Pencil, Trash2, Clock, CheckCircle, XCircle, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -40,6 +41,7 @@ interface Profile {
 }
 
 export default function JamaahManagement() {
+  const navigate = useNavigate();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -290,8 +292,15 @@ export default function JamaahManagement() {
     <div className="min-h-screen bg-background">
       <div className="relative gradient-primary text-foreground p-6 shadow-lg">
         <div className="container mx-auto">
-          <h1 className="text-3xl font-bold font-amiri">Kelola Jamaah</h1>
-          <p className="text-foreground/80 mt-1">Manajemen data & persetujuan jamaah masjid</p>
+          <div className="flex items-center gap-4">
+            <Button variant="secondary" size="icon" onClick={() => navigate('/admin/dashboard')}>
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold font-amiri">Kelola Jamaah</h1>
+              <p className="text-foreground/80 mt-1">Manajemen data & persetujuan jamaah masjid</p>
+            </div>
+          </div>
         </div>
       </div>
 

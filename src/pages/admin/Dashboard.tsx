@@ -236,6 +236,7 @@ export default function AdminDashboard() {
   ];
 
   const quickActions = [
+    { icon: Users, label: "Kelola Jamaah", color: "bg-primary", path: "/admin/jamaah" },
     { icon: Bell, label: "Pengumuman", color: "bg-secondary", path: "/admin/pengumuman" },
     { icon: History, label: "Riwayat Transaksi", color: "bg-gold", path: "/riwayat-transaksi" },
     { icon: ClipboardList, label: "Laporan Bendahara", color: "bg-accent", path: "/admin/laporan-bendahara" },
@@ -315,7 +316,7 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {quickActions.map((action, index) => (
                 <Button
                   key={index}
