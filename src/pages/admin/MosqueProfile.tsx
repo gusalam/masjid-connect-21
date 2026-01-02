@@ -282,19 +282,19 @@ export default function MosqueProfileCMS() {
   }
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-8 max-w-4xl mx-auto">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building2 className="w-6 h-6" />
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
+            <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
             Kelola Profil Masjid
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="informasi" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="informasi">Informasi Masjid</TabsTrigger>
-              <TabsTrigger value="pengurus">Struktur Pengurus</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 h-auto">
+              <TabsTrigger value="informasi" className="text-xs sm:text-sm py-2">Informasi</TabsTrigger>
+              <TabsTrigger value="pengurus" className="text-xs sm:text-sm py-2">Pengurus</TabsTrigger>
             </TabsList>
 
             <TabsContent value="informasi" className="mt-6">

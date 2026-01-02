@@ -226,12 +226,20 @@ export default function JamaahManagement() {
 
   const ProfileCard = ({ profile }: { profile: Profile }) => (
     <Card className="hover-lift">
-      <CardContent className="p-4">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center border border-gold/30 flex-shrink-0">
-            <Users className="w-6 h-6 text-gold" />
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gold/10 rounded-full flex items-center justify-center border border-gold/30 flex-shrink-0">
+              <Users className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
+            </div>
+            <div className="flex-1 min-w-0 sm:hidden">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-semibold text-sm truncate">{profile.full_name || "Nama tidak tersedia"}</h3>
+                {getStatusBadge(profile.status)}
+              </div>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 hidden sm:block">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-semibold truncate">{profile.full_name || "Nama tidak tersedia"}</h3>
               {getStatusBadge(profile.status)}
@@ -256,25 +264,48 @@ export default function JamaahManagement() {
               )}
             </div>
           </div>
-          <div className="flex flex-col gap-2">
+          {/* Mobile info */}
+          <div className="sm:hidden space-y-1 text-sm text-muted-foreground pl-0">
+            {profile.phone && (
+              <span className="flex items-center gap-1">
+                <Phone className="w-3 h-3" />
+                {profile.phone}
+              </span>
+            )}
+            {profile.address && (
+              <span className="flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                <span className="truncate">{profile.address}</span>
+              </span>
+            )}
+            {profile.created_at && (
+              <p className="text-xs">
+                Terdaftar: {format(new Date(profile.created_at), "dd MMMM yyyy", { locale: localeId })}
+              </p>
+            )}
+          </div>
+          {/* Actions */}
+          <div className="flex flex-wrap gap-1 sm:gap-2 sm:flex-col justify-end">
             {profile.status === "pending" && (
               <div className="flex gap-1">
-                <Button size="sm" variant="outline" className="text-green-600 hover:bg-green-50" onClick={() => handleApprove(profile.id)}>
+                <Button size="sm" variant="outline" className="text-green-600 hover:bg-green-50 h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3" onClick={() => handleApprove(profile.id)}>
                   <Check className="w-4 h-4" />
+                  <span className="hidden sm:inline ml-1">Setuju</span>
                 </Button>
-                <Button size="sm" variant="outline" className="text-red-600 hover:bg-red-50" onClick={() => handleReject(profile.id)}>
+                <Button size="sm" variant="outline" className="text-red-600 hover:bg-red-50 h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3" onClick={() => handleReject(profile.id)}>
                   <X className="w-4 h-4" />
+                  <span className="hidden sm:inline ml-1">Tolak</span>
                 </Button>
               </div>
             )}
             <div className="flex gap-1">
-              <Button size="sm" variant="outline" onClick={() => { setSelectedProfile(profile); setShowDetailDialog(true); }}>
+              <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => { setSelectedProfile(profile); setShowDetailDialog(true); }}>
                 <Eye className="w-4 h-4" />
               </Button>
-              <Button size="sm" variant="outline" onClick={() => openEditDialog(profile)}>
+              <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => openEditDialog(profile)}>
                 <Pencil className="w-4 h-4" />
               </Button>
-              <Button size="sm" variant="outline" className="text-red-600 hover:bg-red-50" onClick={() => { setSelectedProfile(profile); setShowDeleteDialog(true); }}>
+              <Button size="sm" variant="outline" className="text-red-600 hover:bg-red-50 h-8 w-8 p-0" onClick={() => { setSelectedProfile(profile); setShowDeleteDialog(true); }}>
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>
@@ -290,53 +321,53 @@ export default function JamaahManagement() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="relative gradient-primary text-foreground p-6 shadow-lg">
+      <div className="relative gradient-primary text-foreground p-4 sm:p-6 shadow-lg">
         <div className="container mx-auto">
-          <div className="flex items-center gap-4">
-            <Button variant="secondary" size="icon" onClick={() => navigate('/admin/dashboard')}>
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Button variant="secondary" size="icon" className="h-8 w-8 sm:h-10 sm:w-10" onClick={() => navigate('/admin/dashboard')}>
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold font-amiri">Kelola Jamaah</h1>
-              <p className="text-foreground/80 mt-1">Manajemen data & persetujuan jamaah masjid</p>
+              <h1 className="text-xl sm:text-3xl font-bold font-amiri">Kelola Jamaah</h1>
+              <p className="text-foreground/80 mt-1 text-sm sm:text-base">Manajemen data & persetujuan jamaah masjid</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
           <Card className="border-yellow-500/30 bg-yellow-500/5">
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="p-3 bg-yellow-500/10 rounded-full">
-                <Clock className="w-6 h-6 text-yellow-600" />
+            <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-4">
+              <div className="p-2 sm:p-3 bg-yellow-500/10 rounded-full">
+                <Clock className="w-4 h-4 sm:w-6 sm:h-6 text-yellow-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Menunggu Persetujuan</p>
-                <p className="text-2xl font-bold text-yellow-600">{pendingCount}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Pending</p>
+                <p className="text-lg sm:text-2xl font-bold text-yellow-600">{pendingCount}</p>
               </div>
             </CardContent>
           </Card>
           <Card className="border-green-500/30 bg-green-500/5">
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="p-3 bg-green-500/10 rounded-full">
-                <CheckCircle className="w-6 h-6 text-green-600" />
+            <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-4">
+              <div className="p-2 sm:p-3 bg-green-500/10 rounded-full">
+                <CheckCircle className="w-4 h-4 sm:w-6 sm:h-6 text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Jamaah Aktif</p>
-                <p className="text-2xl font-bold text-green-600">{approvedCount}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Aktif</p>
+                <p className="text-lg sm:text-2xl font-bold text-green-600">{approvedCount}</p>
               </div>
             </CardContent>
           </Card>
           <Card className="border-red-500/30 bg-red-500/5">
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="p-3 bg-red-500/10 rounded-full">
-                <XCircle className="w-6 h-6 text-red-600" />
+            <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-4">
+              <div className="p-2 sm:p-3 bg-red-500/10 rounded-full">
+                <XCircle className="w-4 h-4 sm:w-6 sm:h-6 text-red-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Ditolak</p>
-                <p className="text-2xl font-bold text-red-600">{rejectedCount}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Ditolak</p>
+                <p className="text-lg sm:text-2xl font-bold text-red-600">{rejectedCount}</p>
               </div>
             </CardContent>
           </Card>
@@ -362,18 +393,18 @@ export default function JamaahManagement() {
             </div>
 
             <Tabs defaultValue="pending" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="pending" className="flex gap-2">
-                  <Clock className="w-4 h-4" />
-                  Pending ({pendingCount})
+              <TabsList className="grid w-full grid-cols-3 h-auto">
+                <TabsTrigger value="pending" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 px-1 sm:px-3">
+                  <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Pending</span> ({pendingCount})
                 </TabsTrigger>
-                <TabsTrigger value="approved" className="flex gap-2">
-                  <CheckCircle className="w-4 h-4" />
-                  Approved ({approvedCount})
+                <TabsTrigger value="approved" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 px-1 sm:px-3">
+                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Approved</span> ({approvedCount})
                 </TabsTrigger>
-                <TabsTrigger value="rejected" className="flex gap-2">
-                  <XCircle className="w-4 h-4" />
-                  Ditolak ({rejectedCount})
+                <TabsTrigger value="rejected" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 px-1 sm:px-3">
+                  <XCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Ditolak</span> ({rejectedCount})
                 </TabsTrigger>
               </TabsList>
 

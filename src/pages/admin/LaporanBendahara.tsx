@@ -248,89 +248,96 @@ export default function LaporanBendahara() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <Button variant="ghost" onClick={() => navigate("/admin/dashboard")}>
+    <div className="min-h-screen bg-background p-4 sm:p-6">
+      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
+        <Button variant="ghost" onClick={() => navigate("/admin/dashboard")} className="text-sm">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Kembali ke Dashboard
+          Kembali
         </Button>
 
         <Card className="card-gold-border">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="w-6 h-6 text-gold" />
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
+              <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
               Kelola Laporan Bendahara
             </CardTitle>
           </CardHeader>
           <CardContent>
             {reports.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
+              <p className="text-center text-muted-foreground py-8 text-sm sm:text-base">
                 Belum ada laporan dari bendahara
               </p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Judul</TableHead>
-                    <TableHead>Periode</TableHead>
-                    <TableHead>Pemasukan</TableHead>
-                    <TableHead>Pengeluaran</TableHead>
-                    <TableHead>Saldo</TableHead>
-                    <TableHead>Tanggal Dibuat</TableHead>
-                    <TableHead className="text-right">Unduh</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {reports.map((report) => (
-                    <TableRow key={report.id}>
-                      <TableCell className="font-medium">{report.title}</TableCell>
-                      <TableCell>
-                        {report.period_start} - {report.period_end}
-                      </TableCell>
-                      <TableCell className="text-green-600">
-                        {formatCurrency((report.content?.summary?.total_income || 0) + (report.content?.summary?.total_donations || 0))}
-                      </TableCell>
-                      <TableCell className="text-destructive">
-                        {formatCurrency(report.content?.summary?.total_expense || 0)}
-                      </TableCell>
-                      <TableCell className="font-semibold">
-                        {formatCurrency(report.content?.summary?.balance || 0)}
-                      </TableCell>
-                      <TableCell>
-                        {format(new Date(report.created_at), "d MMM yyyy", { locale: id })}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => downloadExcel(report)}
-                            title="Download Excel"
-                          >
-                            <FileSpreadsheet className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => downloadPDF(report)}
-                            title="Download PDF"
-                          >
-                            <File className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => downloadCSV(report)}
-                            title="Download CSV"
-                          >
-                            <Download className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <div className="min-w-[700px] sm:min-w-0 px-4 sm:px-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-xs sm:text-sm">Judul</TableHead>
+                        <TableHead className="text-xs sm:text-sm">Periode</TableHead>
+                        <TableHead className="text-xs sm:text-sm">Pemasukan</TableHead>
+                        <TableHead className="text-xs sm:text-sm">Pengeluaran</TableHead>
+                        <TableHead className="text-xs sm:text-sm">Saldo</TableHead>
+                        <TableHead className="text-xs sm:text-sm">Tanggal</TableHead>
+                        <TableHead className="text-right text-xs sm:text-sm">Unduh</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {reports.map((report) => (
+                        <TableRow key={report.id}>
+                          <TableCell className="font-medium text-xs sm:text-sm">{report.title}</TableCell>
+                          <TableCell className="text-xs sm:text-sm whitespace-nowrap">
+                            {report.period_start} - {report.period_end}
+                          </TableCell>
+                          <TableCell className="text-green-600 text-xs sm:text-sm whitespace-nowrap">
+                            {formatCurrency((report.content?.summary?.total_income || 0) + (report.content?.summary?.total_donations || 0))}
+                          </TableCell>
+                          <TableCell className="text-destructive text-xs sm:text-sm whitespace-nowrap">
+                            {formatCurrency(report.content?.summary?.total_expense || 0)}
+                          </TableCell>
+                          <TableCell className="font-semibold text-xs sm:text-sm whitespace-nowrap">
+                            {formatCurrency(report.content?.summary?.balance || 0)}
+                          </TableCell>
+                          <TableCell className="text-xs sm:text-sm whitespace-nowrap">
+                            {format(new Date(report.created_at), "d MMM yyyy", { locale: id })}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-1 sm:gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 w-7 sm:h-8 sm:w-8 p-0"
+                                onClick={() => downloadExcel(report)}
+                                title="Download Excel"
+                              >
+                                <FileSpreadsheet className="w-3 h-3 sm:w-4 sm:h-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 w-7 sm:h-8 sm:w-8 p-0"
+                                onClick={() => downloadPDF(report)}
+                                title="Download PDF"
+                              >
+                                <File className="w-3 h-3 sm:w-4 sm:h-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 w-7 sm:h-8 sm:w-8 p-0"
+                                onClick={() => downloadCSV(report)}
+                                title="Download CSV"
+                              >
+                                <Download className="w-3 h-3 sm:w-4 sm:h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
             )}
           </CardContent>
         </Card>

@@ -184,51 +184,51 @@ export default function DonasiCMS() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="relative gradient-primary text-foreground p-6 shadow-lg">
+      <div className="relative gradient-primary text-foreground p-4 sm:p-6 shadow-lg">
         <div className="absolute inset-0 stars-pattern opacity-20" />
         <div className="container mx-auto relative z-10">
-          <h1 className="text-3xl font-bold font-amiri">Kelola Donatur</h1>
-          <p className="text-foreground/80 mt-1">Kelola data donatur yang ditampilkan di homepage</p>
+          <h1 className="text-xl sm:text-3xl font-bold font-amiri">Kelola Donatur</h1>
+          <p className="text-foreground/80 mt-1 text-sm sm:text-base">Kelola data donatur yang ditampilkan di homepage</p>
         </div>
       </div>
 
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-2 sm:gap-6">
           <Card className="card-gold-border">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Donasi</p>
-                  <p className="text-2xl font-bold text-gold mt-2">
+            <CardContent className="pt-4 sm:pt-6 px-2 sm:px-6">
+              <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Total Donasi</p>
+                  <p className="text-sm sm:text-2xl font-bold text-gold mt-1 sm:mt-2 truncate">
                     Rp {totalDonasi.toLocaleString("id-ID")}
                   </p>
                 </div>
-                <DollarSign className="w-8 h-8 text-gold" />
+                <DollarSign className="w-6 h-6 sm:w-8 sm:h-8 text-gold hidden sm:block" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="card-gold-border">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Donatur</p>
-                  <p className="text-2xl font-bold mt-2">{donasiList?.length || 0}</p>
+            <CardContent className="pt-4 sm:pt-6 px-2 sm:px-6">
+              <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Donatur</p>
+                  <p className="text-lg sm:text-2xl font-bold mt-1 sm:mt-2">{donasiList?.length || 0}</p>
                 </div>
-                <Heart className="w-8 h-8 text-secondary" />
+                <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-secondary hidden sm:block" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="card-gold-border">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Ditampilkan</p>
-                  <p className="text-2xl font-bold text-green-600 mt-2">{displayedCount}</p>
+            <CardContent className="pt-4 sm:pt-6 px-2 sm:px-6">
+              <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Tampil</p>
+                  <p className="text-lg sm:text-2xl font-bold text-green-600 mt-1 sm:mt-2">{displayedCount}</p>
                 </div>
-                <Eye className="w-8 h-8 text-green-600" />
+                <Eye className="w-6 h-6 sm:w-8 sm:h-8 text-green-600 hidden sm:block" />
               </div>
             </CardContent>
           </Card>
@@ -236,14 +236,14 @@ export default function DonasiCMS() {
 
         {/* List */}
         <Card className="card-gold-border">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="font-amiri flex items-center gap-2">
-              <Heart className="w-5 h-5 text-gold" />
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 sm:pb-6">
+            <CardTitle className="font-amiri flex items-center gap-2 text-base sm:text-xl">
+              <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
               Daftar Donatur
             </CardTitle>
-            <Button onClick={openAddDialog}>
-              <Plus className="w-4 h-4 mr-2" />
-              Tambah Donatur
+            <Button onClick={openAddDialog} className="text-sm">
+              <Plus className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Tambah </span>Donatur
             </Button>
           </CardHeader>
           <CardContent>
@@ -252,57 +252,60 @@ export default function DonasiCMS() {
             ) : (
               <div className="space-y-3">
                 {donasiList.map((donasi) => (
-                  <div key={donasi.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-gold/20">
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center border border-gold/30">
-                        <Heart className="w-6 h-6 text-gold" />
+                  <div key={donasi.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-muted/30 rounded-lg border border-gold/20 gap-3">
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gold/10 rounded-full flex items-center justify-center border border-gold/30 flex-shrink-0">
+                        <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="font-semibold">{donasi.nama_donatur}</p>
+                          <p className="font-semibold text-sm sm:text-base truncate">{donasi.nama_donatur}</p>
                           {donasi.status_tampil ? (
-                            <Eye className="w-4 h-4 text-green-600" />
+                            <Eye className="w-3 h-3 sm:w-4 sm:h-4 text-green-600 flex-shrink-0" />
                           ) : (
-                            <EyeOff className="w-4 h-4 text-muted-foreground" />
+                            <EyeOff className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground flex-shrink-0" />
                           )}
                         </div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           {new Date(donasi.tanggal_donasi).toLocaleDateString("id-ID", {
                             day: "numeric",
-                            month: "long",
+                            month: "short",
                             year: "numeric"
                           })}
                         </p>
                       </div>
-                      <div className="text-right mr-4">
-                        <p className="text-xl font-bold text-gold">
-                          Rp {Number(donasi.nominal).toLocaleString("id-ID")}
-                        </p>
-                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => toggleStatus(donasi)}
-                        title={donasi.status_tampil ? "Sembunyikan" : "Tampilkan"}
-                      >
-                        {donasi.status_tampil ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => openEditDialog(donasi)}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => handleDelete(donasi.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                    <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4">
+                      <p className="text-base sm:text-xl font-bold text-gold">
+                        Rp {Number(donasi.nominal).toLocaleString("id-ID")}
+                      </p>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => toggleStatus(donasi)}
+                          title={donasi.status_tampil ? "Sembunyikan" : "Tampilkan"}
+                        >
+                          {donasi.status_tampil ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => openEditDialog(donasi)}
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => handleDelete(donasi.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}
