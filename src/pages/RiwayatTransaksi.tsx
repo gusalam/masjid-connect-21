@@ -252,69 +252,69 @@ export default function RiwayatTransaksi() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="relative gradient-primary text-foreground p-6 shadow-lg">
+      <div className="relative gradient-primary text-foreground p-4 sm:p-6 shadow-lg">
         <div className="container mx-auto">
           <Button
             variant="ghost"
             onClick={() => navigate(-1)}
-            className="mb-4 text-foreground/80 hover:text-foreground hover:bg-foreground/10"
+            className="mb-3 sm:mb-4 text-foreground/80 hover:text-foreground hover:bg-foreground/10 text-sm"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Kembali
           </Button>
-          <h1 className="text-3xl font-bold font-amiri">Riwayat Transaksi</h1>
-          <p className="text-foreground/80 mt-1">
+          <h1 className="text-xl sm:text-3xl font-bold font-amiri">Riwayat Transaksi</h1>
+          <p className="text-foreground/80 mt-1 text-sm sm:text-base">
             Seluruh riwayat transaksi keuangan masjid
           </p>
         </div>
       </div>
 
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-2 sm:gap-6">
           <Card className="card-gold-border bg-card/60 backdrop-blur-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Uang Masuk</p>
-                  <p className="text-2xl font-bold text-green-600 mt-2">
+            <CardContent className="pt-4 sm:pt-6 px-2 sm:px-6">
+              <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Masuk</p>
+                  <p className="text-sm sm:text-2xl font-bold text-green-600 mt-1">
                     {formatCurrency(totalIncome)}
                   </p>
                 </div>
-                <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-xl">
-                  <TrendingUp className="w-6 h-6 text-green-600" />
+                <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/20 rounded-xl hidden sm:block">
+                  <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="card-gold-border bg-card/60 backdrop-blur-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Uang Keluar</p>
-                  <p className="text-2xl font-bold text-red-600 mt-2">
+            <CardContent className="pt-4 sm:pt-6 px-2 sm:px-6">
+              <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Keluar</p>
+                  <p className="text-sm sm:text-2xl font-bold text-red-600 mt-1">
                     {formatCurrency(totalExpense)}
                   </p>
                 </div>
-                <div className="p-3 bg-red-100 dark:bg-red-900/20 rounded-xl">
-                  <TrendingDown className="w-6 h-6 text-red-600" />
+                <div className="p-2 sm:p-3 bg-red-100 dark:bg-red-900/20 rounded-xl hidden sm:block">
+                  <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="card-gold-border bg-card/60 backdrop-blur-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Saldo Akhir</p>
-                  <p className="text-2xl font-bold text-gold mt-2">
+            <CardContent className="pt-4 sm:pt-6 px-2 sm:px-6">
+              <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Saldo</p>
+                  <p className="text-sm sm:text-2xl font-bold text-gold mt-1">
                     {formatCurrency(balance)}
                   </p>
                 </div>
-                <div className="p-3 bg-gold/10 border border-gold/30 rounded-xl">
-                  <DollarSign className="w-6 h-6 text-gold" />
+                <div className="p-2 sm:p-3 bg-gold/10 border border-gold/30 rounded-xl hidden sm:block">
+                  <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
                 </div>
               </div>
             </CardContent>

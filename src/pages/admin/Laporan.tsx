@@ -115,67 +115,67 @@ export default function FinancialReports() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="relative gradient-primary text-foreground p-6 shadow-lg">
+      <div className="relative gradient-primary text-foreground p-4 sm:p-6 shadow-lg">
         <div className="container mx-auto">
           <Button
             variant="ghost"
             onClick={() => navigate(-1)}
-            className="mb-4 text-foreground/80 hover:text-foreground hover:bg-foreground/10"
+            className="mb-3 sm:mb-4 text-foreground/80 hover:text-foreground hover:bg-foreground/10 text-sm"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Kembali
           </Button>
-          <h1 className="text-3xl font-bold font-amiri">Laporan Keuangan</h1>
-          <p className="text-foreground/80 mt-1">Transparansi keuangan masjid - Data real-time dari database</p>
+          <h1 className="text-xl sm:text-3xl font-bold font-amiri">Laporan Keuangan</h1>
+          <p className="text-foreground/80 mt-1 text-sm sm:text-base">Transparansi keuangan masjid - Data real-time dari database</p>
         </div>
       </div>
 
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <div className="grid grid-cols-3 gap-2 sm:gap-6">
           <Card className="card-gold-border bg-card/60 backdrop-blur-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Pemasukan</p>
-                  <p className="text-2xl font-bold text-green-600 mt-2">
+            <CardContent className="pt-4 sm:pt-6 px-2 sm:px-6">
+              <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Pemasukan</p>
+                  <p className="text-sm sm:text-2xl font-bold text-green-600 mt-1 sm:mt-2">
                     {formatCurrency(totalIncome)}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">Termasuk {donations.length} donasi terverifikasi</p>
+                  <p className="text-xs text-muted-foreground mt-1 hidden sm:block">{donations.length} donasi</p>
                 </div>
-                <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-xl">
-                  <TrendingUp className="w-6 h-6 text-green-600" />
+                <div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900/20 rounded-xl hidden sm:block">
+                  <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="card-gold-border bg-card/60 backdrop-blur-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Pengeluaran</p>
-                  <p className="text-2xl font-bold text-red-600 mt-2">
+            <CardContent className="pt-4 sm:pt-6 px-2 sm:px-6">
+              <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Pengeluaran</p>
+                  <p className="text-sm sm:text-2xl font-bold text-red-600 mt-1 sm:mt-2">
                     {formatCurrency(totalExpense)}
                   </p>
                 </div>
-                <div className="p-3 bg-red-100 dark:bg-red-900/20 rounded-xl">
-                  <TrendingDown className="w-6 h-6 text-red-600" />
+                <div className="p-2 sm:p-3 bg-red-100 dark:bg-red-900/20 rounded-xl hidden sm:block">
+                  <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-red-600" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="card-gold-border bg-card/60 backdrop-blur-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Saldo Akhir</p>
-                  <p className="text-2xl font-bold text-gold mt-2">
+            <CardContent className="pt-4 sm:pt-6 px-2 sm:px-6">
+              <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-2">
+                <div className="text-center sm:text-left">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Saldo</p>
+                  <p className="text-sm sm:text-2xl font-bold text-gold mt-1 sm:mt-2">
                     {formatCurrency(balance)}
                   </p>
                 </div>
-                <div className="p-3 bg-gold/10 border border-gold/30 rounded-xl">
-                  <DollarSign className="w-6 h-6 text-gold" />
+                <div className="p-2 sm:p-3 bg-gold/10 border border-gold/30 rounded-xl hidden sm:block">
+                  <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-gold" />
                 </div>
               </div>
             </CardContent>
@@ -183,13 +183,13 @@ export default function FinancialReports() {
         </div>
 
         <Card className="card-gold-border bg-card/60 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="font-amiri flex items-center gap-2">
-              <FileText className="w-5 h-5 text-gold" />
-              Riwayat Transaksi Terbaru
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 sm:pb-6">
+            <CardTitle className="font-amiri flex items-center gap-2 text-base sm:text-xl">
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
+              Transaksi Terbaru
             </CardTitle>
-            <Button variant="outline" size="sm" onClick={() => navigate('/riwayat-transaksi')} className="border-gold/30 hover:border-gold/50">
-              <History className="w-4 h-4 mr-2" />
+            <Button variant="outline" size="sm" onClick={() => navigate('/riwayat-transaksi')} className="border-gold/30 hover:border-gold/50 text-xs sm:text-sm">
+              <History className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               Lihat Semua
             </Button>
           </CardHeader>
@@ -204,26 +204,26 @@ export default function FinancialReports() {
             ) : (
               <div className="space-y-3">
                 {recentTransactions.map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-gold/20">
+                  <div key={transaction.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-muted/30 rounded-lg border border-gold/20 gap-3">
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                      <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
                         transaction.type === "income" ? "bg-green-100 dark:bg-green-900/20" : "bg-red-100 dark:bg-red-900/20"
                       }`}>
                         {transaction.type === "income" ? (
-                          <TrendingUp className="w-5 h-5 text-green-600" />
+                          <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
                         ) : (
-                          <TrendingDown className="w-5 h-5 text-red-600" />
+                          <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
                         )}
                       </div>
-                      <div>
-                        <p className="font-medium">{transaction.category}</p>
-                        <p className="text-sm text-muted-foreground">{transaction.description || "-"}</p>
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm sm:text-base truncate">{transaction.category}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground truncate">{transaction.description || "-"}</p>
                         <p className="text-xs text-muted-foreground">
-                          {format(new Date(transaction.transaction_date), "d MMMM yyyy", { locale: localeId })}
+                          {format(new Date(transaction.transaction_date), "d MMM yyyy", { locale: localeId })}
                         </p>
                       </div>
                     </div>
-                    <p className={`font-bold ${
+                    <p className={`font-bold text-sm sm:text-base whitespace-nowrap ${
                       transaction.type === "income" ? "text-green-600" : "text-red-600"
                     }`}>
                       {transaction.type === "income" ? "+" : "-"}{formatCurrency(Number(transaction.amount))}

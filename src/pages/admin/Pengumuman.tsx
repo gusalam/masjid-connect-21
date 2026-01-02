@@ -173,39 +173,39 @@ export default function PengumumanManagement() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="relative gradient-primary text-foreground p-6 shadow-lg overflow-hidden">
+      <div className="relative gradient-primary text-foreground p-4 sm:p-6 shadow-lg overflow-hidden">
         <div className="absolute inset-0 stars-pattern opacity-20" />
         <div className="absolute inset-0 islamic-pattern opacity-10" />
-        <Star className="absolute top-4 right-10 w-5 h-5 text-gold animate-pulse opacity-60" />
+        <Star className="absolute top-4 right-10 w-5 h-5 text-gold animate-pulse opacity-60 hidden sm:block" />
         
         <div className="container mx-auto relative z-10">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/admin/dashboard")} className="hover:bg-gold/20">
-              <ArrowLeft className="w-5 h-5" />
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/admin/dashboard")} className="hover:bg-gold/20 h-8 w-8 sm:h-10 sm:w-10">
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Megaphone className="w-6 h-6 text-gold animate-pulse" />
-                <Sparkles className="w-5 h-5 text-secondary animate-pulse" />
+                <Megaphone className="w-5 h-5 sm:w-6 sm:h-6 text-gold animate-pulse" />
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-secondary animate-pulse" />
               </div>
-              <h1 className="text-2xl font-bold font-amiri">Kelola Pengumuman</h1>
-              <p className="text-foreground/80 text-sm">Tambah, edit, dan kelola pengumuman masjid</p>
+              <h1 className="text-xl sm:text-2xl font-bold font-amiri">Kelola Pengumuman</h1>
+              <p className="text-foreground/80 text-xs sm:text-sm">Tambah, edit, dan kelola pengumuman masjid</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
         {/* Add Button */}
         <div className="flex justify-end">
           <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setIsDialogOpen(open); }}>
             <DialogTrigger asChild>
-              <Button className="bg-gold hover:bg-gold-light text-primary">
-                <Plus className="w-4 h-4 mr-2" />
-                Tambah Pengumuman
+              <Button className="bg-gold hover:bg-gold-light text-primary text-sm sm:text-base">
+                <Plus className="w-4 h-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Tambah </span>Pengumuman
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="font-amiri flex items-center gap-2">
                   <Bell className="w-5 h-5 text-gold" />
@@ -291,17 +291,17 @@ export default function PengumumanManagement() {
           ) : (
             announcements?.map((announcement) => (
               <Card key={announcement.id} className="card-gold-border bg-card/60 backdrop-blur-sm hover-lift">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 space-y-2">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
+                    <div className="flex-1 space-y-2 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-semibold text-lg">{announcement.title}</h3>
+                        <h3 className="font-semibold text-base sm:text-lg truncate">{announcement.title}</h3>
                         {getPriorityBadge(announcement.priority)}
                         <span className={`px-2 py-1 text-xs rounded-full ${announcement.is_active ? "bg-green-500/20 text-green-500 border border-green-500/30" : "bg-muted text-muted-foreground border border-muted"}`}>
                           {announcement.is_active ? "Aktif" : "Nonaktif"}
                         </span>
                       </div>
-                      <p className="text-muted-foreground text-sm line-clamp-2">{announcement.content}</p>
+                      <p className="text-muted-foreground text-xs sm:text-sm line-clamp-2">{announcement.content}</p>
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <Moon className="w-3 h-3" />
                         {new Date(announcement.created_at).toLocaleDateString("id-ID", {
@@ -311,13 +311,13 @@ export default function PengumumanManagement() {
                         })}
                       </p>
                     </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="icon" onClick={() => handleEdit(announcement)} className="border-gold/30 hover:border-gold/50">
+                    <div className="flex gap-2 self-end sm:self-start">
+                      <Button variant="outline" size="icon" onClick={() => handleEdit(announcement)} className="border-gold/30 hover:border-gold/50 h-8 w-8 sm:h-10 sm:w-10">
                         <Edit className="w-4 h-4" />
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="icon" className="border-destructive/30 hover:border-destructive/50 hover:bg-destructive/10">
+                          <Button variant="outline" size="icon" className="border-destructive/30 hover:border-destructive/50 hover:bg-destructive/10 h-8 w-8 sm:h-10 sm:w-10">
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
                         </AlertDialogTrigger>

@@ -168,29 +168,29 @@ export default function GalleryManagement() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="relative gradient-primary text-foreground p-6 shadow-lg">
+      <div className="relative gradient-primary text-foreground p-4 sm:p-6 shadow-lg">
         <div className="container mx-auto">
-          <h1 className="text-3xl font-bold font-amiri">Manajemen Galeri</h1>
-          <p className="text-foreground/80 mt-1">Kelola foto dan dokumentasi masjid</p>
+          <h1 className="text-xl sm:text-3xl font-bold font-amiri">Manajemen Galeri</h1>
+          <p className="text-foreground/80 mt-1 text-sm sm:text-base">Kelola foto dan dokumentasi masjid</p>
         </div>
       </div>
 
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
         <Card className="card-gold-border">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="font-amiri flex items-center gap-2">
-                <Image className="w-5 h-5 text-gold" />
+          <CardHeader className="pb-3 sm:pb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <CardTitle className="font-amiri flex items-center gap-2 text-base sm:text-xl">
+                <Image className="w-4 h-4 sm:w-5 sm:h-5 text-gold" />
                 Galeri Foto
               </CardTitle>
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button className="bg-gold hover:bg-gold/90">
-                    <Plus className="w-4 h-4 mr-2" />
+                  <Button className="bg-gold hover:bg-gold/90 text-sm w-full sm:w-auto">
+                    <Plus className="w-4 h-4 mr-1 sm:mr-2" />
                     Tambah Foto
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>Tambah Foto Baru</DialogTitle>
                   </DialogHeader>
@@ -214,7 +214,7 @@ export default function GalleryManagement() {
                           onChange={(e) => setImageFile(e.target.files?.[0] || null)}
                           required
                         />
-                        <Upload className="w-4 h-4 text-muted-foreground" />
+                        <Upload className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                       </div>
                     </div>
                     <div>
@@ -258,7 +258,7 @@ export default function GalleryManagement() {
             ) : filteredGallery.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">Tidak ada foto</p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredGallery.map((item) => (
                   <Card key={item.id} className="hover-lift overflow-hidden">
                     <div className="aspect-video relative overflow-hidden bg-muted">
@@ -268,20 +268,20 @@ export default function GalleryManagement() {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold mb-1">{item.title}</h3>
+                    <CardContent className="p-3 sm:p-4">
+                      <h3 className="font-semibold mb-1 text-sm sm:text-base truncate">{item.title}</h3>
                       {item.category && (
                         <span className="text-xs bg-gold/10 text-gold px-2 py-1 rounded-full">
                           {item.category}
                         </span>
                       )}
                       {item.description && (
-                        <p className="text-sm text-muted-foreground mt-2">{item.description}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-2 line-clamp-2">{item.description}</p>
                       )}
                       <Button
                         variant="destructive"
                         size="sm"
-                        className="w-full mt-3"
+                        className="w-full mt-3 text-xs sm:text-sm"
                         onClick={() => handleDelete(item.id, item.image_url)}
                       >
                         <Trash2 className="w-3 h-3 mr-2" />
