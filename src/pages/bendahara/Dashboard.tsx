@@ -255,14 +255,14 @@ export default function BendaharaDashboard() {
                   <p className="text-sm text-muted-foreground text-center py-4">Belum ada data pemasukan</p>
                 ) : (
                   recentIncome.map((transaction) => (
-                    <div key={transaction.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div key={transaction.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                       <div>
-                        <p className="font-medium">{transaction.category}</p>
+                        <p className="font-medium text-foreground">{transaction.category}</p>
                         <p className="text-sm text-muted-foreground">
                           {format(new Date(transaction.transaction_date), "d MMM yyyy", { locale: id })}
                         </p>
                       </div>
-                      <p className="font-bold text-primary">+{formatCurrency(Number(transaction.amount))}</p>
+                      <p className="font-bold text-green-600 dark:text-green-400">+{formatCurrency(Number(transaction.amount))}</p>
                     </div>
                   ))
                 )}
@@ -283,14 +283,14 @@ export default function BendaharaDashboard() {
                   <p className="text-sm text-muted-foreground text-center py-4">Belum ada data pengeluaran</p>
                 ) : (
                   recentExpense.map((transaction) => (
-                    <div key={transaction.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div key={transaction.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                       <div>
-                        <p className="font-medium">{transaction.category}</p>
+                        <p className="font-medium text-foreground">{transaction.category}</p>
                         <p className="text-sm text-muted-foreground">
                           {format(new Date(transaction.transaction_date), "d MMM yyyy", { locale: id })}
                         </p>
                       </div>
-                      <p className="font-bold text-destructive">-{formatCurrency(Number(transaction.amount))}</p>
+                      <p className="font-bold text-red-600 dark:text-red-400">-{formatCurrency(Number(transaction.amount))}</p>
                     </div>
                   ))
                 )}
