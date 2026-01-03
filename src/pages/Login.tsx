@@ -34,8 +34,6 @@ export default function Login() {
 
   const redirectBasedOnRole = async (userId: string) => {
     try {
-      console.log('[SESSION CHECK] Checking role for user:', userId);
-      
       // Get user role from user_roles table
       const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
@@ -43,26 +41,20 @@ export default function Login() {
         .eq('user_id', userId)
         .single();
 
-      console.log('[SESSION CHECK] Role data:', roleData, 'Error:', roleError);
-
       if (!roleData || roleError) {
-        console.log('[SESSION CHECK] No role found');
         return;
       }
 
       const userRole = roleData.role;
-      console.log('[SESSION CHECK] User role:', userRole);
 
       // Admin - redirect directly
       if (userRole === 'admin') {
-        console.log('[SESSION CHECK] Redirecting admin');
         navigate('/admin/dashboard', { replace: true });
         return;
       }
 
       // Bendahara - redirect directly
       if (userRole === 'bendahara') {
-        console.log('[SESSION CHECK] Redirecting bendahara');
         navigate('/bendahara/dashboard', { replace: true });
         return;
       }
@@ -76,18 +68,15 @@ export default function Login() {
           .single();
 
         const userStatus = profileData?.status || 'pending';
-        console.log('[SESSION CHECK] Jamaah status:', userStatus);
 
         if (userStatus === 'approved') {
-          console.log('[SESSION CHECK] Redirecting approved jamaah');
           navigate('/jamaah/dashboard', { replace: true });
         } else {
-          console.log('[SESSION CHECK] Jamaah not approved, signing out');
           await supabase.auth.signOut();
         }
       }
     } catch (error) {
-      console.error('[SESSION CHECK] Error:', error);
+      console.error('Role check error:', error);
     }
   };
 
@@ -104,7 +93,6 @@ export default function Login() {
       if (error) throw error;
 
       const userId = data.user.id;
-      console.log('[LOGIN] User ID:', userId);
 
       // Step 1: Get user role from user_roles table
       const { data: roleData, error: roleError } = await supabase
@@ -113,11 +101,8 @@ export default function Login() {
         .eq('user_id', userId)
         .single();
 
-      console.log('[LOGIN] Role data:', roleData, 'Error:', roleError);
-
       // If no role found, logout and show error
       if (!roleData || roleError) {
-        console.log('[LOGIN] No role found, signing out');
         await supabase.auth.signOut();
         toast({
           variant: "destructive",
@@ -129,25 +114,20 @@ export default function Login() {
       }
 
       const userRole = roleData.role;
-      console.log('[LOGIN] User role:', userRole);
 
       // Step 2: Get profile status from profiles table
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData } = await supabase
         .from('profiles')
         .select('status')
         .eq('id', userId)
         .single();
 
-      console.log('[LOGIN] Profile data:', profileData, 'Error:', profileError);
-
       const userStatus = profileData?.status || 'pending';
-      console.log('[LOGIN] User status:', userStatus);
 
       // Step 3: Handle redirect based on role and status
       
       // Admin - no approval needed
       if (userRole === 'admin') {
-        console.log('[LOGIN] Redirecting admin to /admin/dashboard');
         toast({
           title: "Login Berhasil",
           description: "Selamat datang, Admin!"
@@ -158,7 +138,6 @@ export default function Login() {
 
       // Bendahara - no approval needed
       if (userRole === 'bendahara') {
-        console.log('[LOGIN] Redirecting bendahara to /bendahara/dashboard');
         toast({
           title: "Login Berhasil",
           description: "Selamat datang, Bendahara!"
@@ -169,10 +148,7 @@ export default function Login() {
 
       // Jamaah - need approval check
       if (userRole === 'jamaah') {
-        console.log('[LOGIN] Jamaah detected, checking approval status:', userStatus);
-        
         if (userStatus !== 'approved') {
-          console.log('[LOGIN] Jamaah not approved, signing out');
           await supabase.auth.signOut();
           
           if (userStatus === 'rejected') {
@@ -193,7 +169,6 @@ export default function Login() {
         }
 
         // Jamaah approved - redirect to dashboard
-        console.log('[LOGIN] Jamaah approved, redirecting to /jamaah/dashboard');
         toast({
           title: "Login Berhasil",
           description: "Selamat datang kembali!"
@@ -203,7 +178,6 @@ export default function Login() {
       }
 
       // Unknown role - logout
-      console.log('[LOGIN] Unknown role, signing out');
       await supabase.auth.signOut();
       toast({
         variant: "destructive",
@@ -213,7 +187,6 @@ export default function Login() {
       setIsLoading(false);
 
     } catch (error: any) {
-      console.error('[LOGIN] Error:', error);
       toast({
         variant: "destructive",
         title: "Login Gagal",

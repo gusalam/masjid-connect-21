@@ -354,12 +354,12 @@ export default function AdminDashboard() {
                   <p className="text-center text-muted-foreground py-4 text-sm">Belum ada kegiatan</p>
                 ) : (
                   recentActivities.map((activity) => (
-                    <div key={activity.id} className="flex items-center gap-3 md:gap-4 p-2 md:p-3 bg-muted/30 rounded-lg border border-gold/20 hover-lift">
+                    <div key={activity.id} className="flex items-center gap-3 md:gap-4 p-2 md:p-3 bg-muted rounded-lg border border-gold/20 hover-lift">
                       <div className="w-8 h-8 md:w-10 md:h-10 bg-gold/10 border border-gold/30 rounded-lg flex items-center justify-center flex-shrink-0">
                         <Calendar className="w-4 h-4 md:w-5 md:h-5 text-gold" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm md:text-base truncate">{activity.title}</p>
+                        <p className="font-medium text-sm md:text-base truncate text-foreground">{activity.title}</p>
                         <p className="text-xs md:text-sm text-muted-foreground flex items-center gap-1">
                           <Moon className="w-3 h-3 flex-shrink-0" />
                           <span className="truncate">
@@ -391,21 +391,21 @@ export default function AdminDashboard() {
                   <p className="text-center text-muted-foreground py-4 text-sm">Belum ada transaksi</p>
                 ) : (
                   recentTransactions.map((transaction) => (
-                    <div key={`${transaction.source}-${transaction.id}`} className="flex items-center justify-between p-2 md:p-3 bg-muted/30 rounded-lg border border-gold/20 hover-lift gap-2">
+                    <div key={`${transaction.source}-${transaction.id}`} className="flex items-center justify-between p-2 md:p-3 bg-muted rounded-lg border border-gold/20 hover-lift gap-2">
                       <div className="flex items-center gap-2 md:gap-3 min-w-0">
                         <div className={`w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
                           transaction.type === 'income' 
-                            ? 'bg-green-100 dark:bg-green-900/20' 
-                            : 'bg-red-100 dark:bg-red-900/20'
+                            ? 'bg-green-100 dark:bg-green-900/30' 
+                            : 'bg-red-100 dark:bg-red-900/30'
                         }`}>
                           {transaction.type === 'income' ? (
-                            <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+                            <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-green-600 dark:text-green-400" />
                           ) : (
-                            <TrendingDown className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
+                            <TrendingDown className="w-4 h-4 md:w-5 md:h-5 text-red-600 dark:text-red-400" />
                           )}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-medium text-sm md:text-base truncate">{transaction.category}</p>
+                          <p className="font-medium text-sm md:text-base truncate text-foreground">{transaction.category}</p>
                           <p className="text-xs md:text-sm text-muted-foreground truncate">
                             {format(new Date(transaction.date), 'd MMM yyyy', { locale: localeId })}
                           </p>
@@ -413,7 +413,7 @@ export default function AdminDashboard() {
                       </div>
                       <div className="text-right flex-shrink-0">
                         <p className={`font-bold text-xs md:text-base ${
-                          transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                          transaction.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                         }`}>
                           {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
                         </p>

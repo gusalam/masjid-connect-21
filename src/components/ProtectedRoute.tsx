@@ -21,10 +21,7 @@ export default function ProtectedRoute({ children, allowedRoles, requireApproval
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
-      console.log('[PROTECTED] Checking user:', user?.id);
-      
       if (!user) {
-        console.log('[PROTECTED] No user, redirecting to login');
         navigate('/login');
         return;
       }
@@ -36,20 +33,15 @@ export default function ProtectedRoute({ children, allowedRoles, requireApproval
         .eq('user_id', user.id)
         .single();
 
-      console.log('[PROTECTED] Role data:', roleData, 'Error:', roleError);
-
       if (!roleData || roleError) {
-        console.log('[PROTECTED] No role found, redirecting to login');
         navigate('/login');
         return;
       }
 
       const userRole = roleData.role;
-      console.log('[PROTECTED] User role:', userRole, 'Allowed roles:', allowedRoles);
 
       // Check if user role is in allowed roles
       if (!allowedRoles.includes(userRole)) {
-        console.log('[PROTECTED] Role not allowed, redirecting based on role');
         // Redirect based on actual role
         if (userRole === 'admin') {
           navigate('/admin/dashboard', { replace: true });
@@ -65,29 +57,24 @@ export default function ProtectedRoute({ children, allowedRoles, requireApproval
 
       // For jamaah, check approval status if required
       if (requireApproval && userRole === 'jamaah') {
-        const { data: profileData, error: profileError } = await supabase
+        const { data: profileData } = await supabase
           .from('profiles')
           .select('status')
           .eq('id', user.id)
           .single();
 
-        console.log('[PROTECTED] Profile data:', profileData, 'Error:', profileError);
-
         const userStatus = profileData?.status || 'pending';
-        console.log('[PROTECTED] Jamaah status:', userStatus);
 
         if (userStatus !== 'approved') {
-          console.log('[PROTECTED] Jamaah not approved, signing out');
           await supabase.auth.signOut();
           navigate('/login', { replace: true });
           return;
         }
       }
 
-      console.log('[PROTECTED] Authorization successful');
       setAuthorized(true);
     } catch (error) {
-      console.error('[PROTECTED] Auth check error:', error);
+      console.error('Auth check error:', error);
       navigate('/login');
     } finally {
       setLoading(false);

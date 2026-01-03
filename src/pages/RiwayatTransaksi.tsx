@@ -474,25 +474,25 @@ export default function RiwayatTransaksi() {
                 {filteredTransactions.map((transaction) => (
                   <div
                     key={`${transaction.source}-${transaction.id}`}
-                    className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-gold/20 hover:border-gold/40 transition-colors"
+                    className="flex items-center justify-between p-4 bg-muted rounded-lg border border-gold/20 hover:border-gold/40 transition-colors"
                   >
                     <div className="flex items-center gap-4">
                       <div
                         className={`w-12 h-12 rounded-lg flex items-center justify-center ${
                           transaction.type === "income"
-                            ? "bg-green-100 dark:bg-green-900/20"
-                            : "bg-red-100 dark:bg-red-900/20"
+                            ? "bg-green-100 dark:bg-green-900/30"
+                            : "bg-red-100 dark:bg-red-900/30"
                         }`}
                       >
                         {transaction.type === "income" ? (
-                          <TrendingUp className="w-5 h-5 text-green-600" />
+                          <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
                         ) : (
-                          <TrendingDown className="w-5 h-5 text-red-600" />
+                          <TrendingDown className="w-5 h-5 text-red-600 dark:text-red-400" />
                         )}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-medium">{transaction.category}</p>
+                          <p className="font-medium text-foreground">{transaction.category}</p>
                           {transaction.source === "donation" && (
                             <Badge variant="secondary" className="text-xs">
                               Donasi
@@ -517,8 +517,8 @@ export default function RiwayatTransaksi() {
                       <p
                         className={`font-bold text-lg ${
                           transaction.type === "income"
-                            ? "text-green-600"
-                            : "text-red-600"
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
                         }`}
                       >
                         {transaction.type === "income" ? "+" : "-"}
