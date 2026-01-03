@@ -34,44 +34,60 @@ export default function Login() {
 
   const redirectBasedOnRole = async (userId: string) => {
     try {
-      // Get user role
-      const { data: roleData } = await supabase
+      console.log('[SESSION CHECK] Checking role for user:', userId);
+      
+      // Get user role from user_roles table
+      const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
         .single();
 
-      if (!roleData) {
-        navigate('/');
+      console.log('[SESSION CHECK] Role data:', roleData, 'Error:', roleError);
+
+      if (!roleData || roleError) {
+        console.log('[SESSION CHECK] No role found');
         return;
       }
 
-      // For admin and bendahara, redirect directly
-      if (roleData.role === 'admin') {
+      const userRole = roleData.role;
+      console.log('[SESSION CHECK] User role:', userRole);
+
+      // Admin - redirect directly
+      if (userRole === 'admin') {
+        console.log('[SESSION CHECK] Redirecting admin');
         navigate('/admin/dashboard', { replace: true });
         return;
       }
 
-      if (roleData.role === 'bendahara') {
+      // Bendahara - redirect directly
+      if (userRole === 'bendahara') {
+        console.log('[SESSION CHECK] Redirecting bendahara');
         navigate('/bendahara/dashboard', { replace: true });
         return;
       }
 
-      // For jamaah, check profile status
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('status')
-        .eq('id', userId)
-        .single();
+      // Jamaah - check approval status
+      if (userRole === 'jamaah') {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('status')
+          .eq('id', userId)
+          .single();
 
-      if (profileData?.status === 'approved') {
-        navigate('/jamaah/dashboard', { replace: true });
-      } else {
-        // Not approved, sign out
-        await supabase.auth.signOut();
+        const userStatus = profileData?.status || 'pending';
+        console.log('[SESSION CHECK] Jamaah status:', userStatus);
+
+        if (userStatus === 'approved') {
+          console.log('[SESSION CHECK] Redirecting approved jamaah');
+          navigate('/jamaah/dashboard', { replace: true });
+        } else {
+          console.log('[SESSION CHECK] Jamaah not approved, signing out');
+          await supabase.auth.signOut();
+        }
       }
     } catch (error) {
-      console.error('Role check error:', error);
+      console.error('[SESSION CHECK] Error:', error);
     }
   };
 
@@ -79,6 +95,7 @@ export default function Login() {
     e.preventDefault();
     try {
       setIsLoading(true);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -86,15 +103,51 @@ export default function Login() {
 
       if (error) throw error;
 
-      // Check user role first
-      const { data: roleData } = await supabase
+      const userId = data.user.id;
+      console.log('[LOGIN] User ID:', userId);
+
+      // Step 1: Get user role from user_roles table
+      const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', data.user.id)
+        .eq('user_id', userId)
         .single();
 
-      // Admin and Bendahara don't need approval check
-      if (roleData?.role === 'admin') {
+      console.log('[LOGIN] Role data:', roleData, 'Error:', roleError);
+
+      // If no role found, logout and show error
+      if (!roleData || roleError) {
+        console.log('[LOGIN] No role found, signing out');
+        await supabase.auth.signOut();
+        toast({
+          variant: "destructive",
+          title: "Login Gagal",
+          description: "Role tidak ditemukan. Hubungi admin."
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const userRole = roleData.role;
+      console.log('[LOGIN] User role:', userRole);
+
+      // Step 2: Get profile status from profiles table
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('status')
+        .eq('id', userId)
+        .single();
+
+      console.log('[LOGIN] Profile data:', profileData, 'Error:', profileError);
+
+      const userStatus = profileData?.status || 'pending';
+      console.log('[LOGIN] User status:', userStatus);
+
+      // Step 3: Handle redirect based on role and status
+      
+      // Admin - no approval needed
+      if (userRole === 'admin') {
+        console.log('[LOGIN] Redirecting admin to /admin/dashboard');
         toast({
           title: "Login Berhasil",
           description: "Selamat datang, Admin!"
@@ -103,7 +156,9 @@ export default function Login() {
         return;
       }
 
-      if (roleData?.role === 'bendahara') {
+      // Bendahara - no approval needed
+      if (userRole === 'bendahara') {
+        console.log('[LOGIN] Redirecting bendahara to /bendahara/dashboard');
         toast({
           title: "Login Berhasil",
           description: "Selamat datang, Bendahara!"
@@ -112,41 +167,53 @@ export default function Login() {
         return;
       }
 
-      // For jamaah, check profile status
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('status')
-        .eq('id', data.user.id)
-        .single();
+      // Jamaah - need approval check
+      if (userRole === 'jamaah') {
+        console.log('[LOGIN] Jamaah detected, checking approval status:', userStatus);
+        
+        if (userStatus !== 'approved') {
+          console.log('[LOGIN] Jamaah not approved, signing out');
+          await supabase.auth.signOut();
+          
+          if (userStatus === 'rejected') {
+            toast({
+              variant: "destructive",
+              title: "Akun Ditolak",
+              description: "Maaf, pendaftaran Anda ditolak. Silakan hubungi admin."
+            });
+          } else {
+            toast({
+              variant: "destructive",
+              title: "Akun Menunggu Persetujuan",
+              description: "Akun Anda menunggu persetujuan admin. Silakan tunggu konfirmasi."
+            });
+          }
+          setIsLoading(false);
+          return;
+        }
 
-      if (profileData?.status === 'pending') {
-        await supabase.auth.signOut();
+        // Jamaah approved - redirect to dashboard
+        console.log('[LOGIN] Jamaah approved, redirecting to /jamaah/dashboard');
         toast({
-          variant: "destructive",
-          title: "Akun Menunggu Persetujuan",
-          description: "Akun Anda menunggu persetujuan admin. Silakan tunggu konfirmasi."
+          title: "Login Berhasil",
+          description: "Selamat datang kembali!"
         });
-        setIsLoading(false);
+        navigate('/jamaah/dashboard', { replace: true });
         return;
       }
 
-      if (profileData?.status === 'rejected') {
-        await supabase.auth.signOut();
-        toast({
-          variant: "destructive",
-          title: "Akun Ditolak",
-          description: "Maaf, pendaftaran Anda ditolak. Silakan hubungi admin untuk informasi lebih lanjut."
-        });
-        setIsLoading(false);
-        return;
-      }
-
+      // Unknown role - logout
+      console.log('[LOGIN] Unknown role, signing out');
+      await supabase.auth.signOut();
       toast({
-        title: "Login Berhasil",
-        description: "Selamat datang kembali!"
+        variant: "destructive",
+        title: "Login Gagal",
+        description: "Role tidak valid. Hubungi admin."
       });
-      navigate('/jamaah/dashboard', { replace: true });
+      setIsLoading(false);
+
     } catch (error: any) {
+      console.error('[LOGIN] Error:', error);
       toast({
         variant: "destructive",
         title: "Login Gagal",
