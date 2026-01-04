@@ -82,9 +82,10 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+
     try {
-      setIsLoading(true);
-      
+      // Step 1: Sign in
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -94,20 +95,20 @@ export default function Login() {
 
       const userId = data.user.id;
 
-      // Step 1: Get user role from user_roles table
+      // Step 2: Fetch role from user_roles table (WAJIB SELESAI)
       const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
         .single();
 
-      // If no role found, logout and show error
-      if (!roleData || roleError) {
+      // Validate role exists
+      if (roleError || !roleData || !roleData.role) {
         await supabase.auth.signOut();
         toast({
           variant: "destructive",
           title: "Login Gagal",
-          description: "Role tidak ditemukan. Hubungi admin."
+          description: "Role belum ditentukan. Hubungi admin untuk konfigurasi akun."
         });
         setIsLoading(false);
         return;
@@ -115,18 +116,30 @@ export default function Login() {
 
       const userRole = roleData.role;
 
-      // Step 2: Get profile status from profiles table
-      const { data: profileData } = await supabase
+      // Step 3: Fetch profile status from profiles table (WAJIB SELESAI)
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('status')
         .eq('id', userId)
         .single();
 
-      const userStatus = profileData?.status || 'pending';
+      // Validate profile exists
+      if (profileError || !profileData) {
+        await supabase.auth.signOut();
+        toast({
+          variant: "destructive",
+          title: "Login Gagal",
+          description: "Profil tidak ditemukan. Hubungi admin."
+        });
+        setIsLoading(false);
+        return;
+      }
 
-      // Step 3: Handle redirect based on role and status
-      
-      // Admin - no approval needed
+      const userStatus = profileData.status || 'pending';
+
+      // Step 4: Validate and redirect based on role and status
+
+      // Admin - no approval needed, redirect immediately
       if (userRole === 'admin') {
         toast({
           title: "Login Berhasil",
@@ -136,7 +149,7 @@ export default function Login() {
         return;
       }
 
-      // Bendahara - no approval needed
+      // Bendahara - no approval needed, redirect immediately
       if (userRole === 'bendahara') {
         toast({
           title: "Login Berhasil",
@@ -146,38 +159,38 @@ export default function Login() {
         return;
       }
 
-      // Jamaah - need approval check
+      // Jamaah - WAJIB cek approval status
       if (userRole === 'jamaah') {
-        if (userStatus !== 'approved') {
-          await supabase.auth.signOut();
-          
-          if (userStatus === 'rejected') {
-            toast({
-              variant: "destructive",
-              title: "Akun Ditolak",
-              description: "Maaf, pendaftaran Anda ditolak. Silakan hubungi admin."
-            });
-          } else {
-            toast({
-              variant: "destructive",
-              title: "Akun Menunggu Persetujuan",
-              description: "Akun Anda menunggu persetujuan admin. Silakan tunggu konfirmasi."
-            });
-          }
-          setIsLoading(false);
+        if (userStatus === 'approved') {
+          toast({
+            title: "Login Berhasil",
+            description: "Selamat datang kembali!"
+          });
+          navigate('/jamaah/dashboard', { replace: true });
           return;
         }
 
-        // Jamaah approved - redirect to dashboard
-        toast({
-          title: "Login Berhasil",
-          description: "Selamat datang kembali!"
-        });
-        navigate('/jamaah/dashboard', { replace: true });
+        // Not approved - logout and show message
+        await supabase.auth.signOut();
+        
+        if (userStatus === 'rejected') {
+          toast({
+            variant: "destructive",
+            title: "Akun Ditolak",
+            description: "Maaf, pendaftaran Anda ditolak. Silakan hubungi admin."
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Menunggu Persetujuan",
+            description: "Akun Anda menunggu persetujuan admin. Silakan tunggu konfirmasi."
+          });
+        }
+        setIsLoading(false);
         return;
       }
 
-      // Unknown role - logout
+      // Role tidak dikenali - logout
       await supabase.auth.signOut();
       toast({
         variant: "destructive",
