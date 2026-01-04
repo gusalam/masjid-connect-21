@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect } from "react";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -9,78 +9,51 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children, allowedRoles, requireApproval = true }: ProtectedRouteProps) {
-  const [loading, setLoading] = useState(true);
-  const [authorized, setAuthorized] = useState(false);
+  const { user, role, profile, loading, signOut } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    checkAuth();
-  }, []);
+    if (loading) return;
 
-  const checkAuth = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        navigate('/login');
-        return;
-      }
-
-      // Get user role from user_roles table
-      const { data: roleData, error: roleError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!roleData || roleError) {
-        navigate('/login');
-        return;
-      }
-
-      const userRole = roleData.role;
-
-      // Check if user role is in allowed roles
-      if (!allowedRoles.includes(userRole)) {
-        // Redirect based on actual role
-        if (userRole === 'admin') {
-          navigate('/admin/dashboard', { replace: true });
-        } else if (userRole === 'bendahara') {
-          navigate('/bendahara/dashboard', { replace: true });
-        } else if (userRole === 'jamaah') {
-          navigate('/jamaah/dashboard', { replace: true });
-        } else {
-          navigate('/login', { replace: true });
-        }
-        return;
-      }
-
-      // For jamaah, check approval status if required
-      if (requireApproval && userRole === 'jamaah') {
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('status')
-          .eq('id', user.id)
-          .single();
-
-        const userStatus = profileData?.status || 'pending';
-
-        if (userStatus !== 'approved') {
-          await supabase.auth.signOut();
-          navigate('/login', { replace: true });
-          return;
-        }
-      }
-
-      setAuthorized(true);
-    } catch (error) {
-      console.error('Auth check error:', error);
-      navigate('/login');
-    } finally {
-      setLoading(false);
+    // Not logged in
+    if (!user) {
+      navigate('/login', { replace: true });
+      return;
     }
-  };
 
+    // No role assigned
+    if (!role) {
+      navigate('/login', { replace: true });
+      return;
+    }
+
+    // Role not allowed for this route
+    if (!allowedRoles.includes(role)) {
+      // Redirect to correct dashboard based on role
+      if (role === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (role === 'bendahara') {
+        navigate('/bendahara/dashboard', { replace: true });
+      } else if (role === 'jamaah') {
+        navigate('/jamaah/dashboard', { replace: true });
+      } else {
+        navigate('/login', { replace: true });
+      }
+      return;
+    }
+
+    // For jamaah, check approval status
+    if (requireApproval && role === 'jamaah') {
+      const userStatus = profile?.status || 'pending';
+      if (userStatus !== 'approved') {
+        signOut();
+        navigate('/login', { replace: true });
+        return;
+      }
+    }
+  }, [user, role, profile, loading, allowedRoles, requireApproval, navigate, signOut]);
+
+  // Show loading state
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -92,7 +65,18 @@ export default function ProtectedRoute({ children, allowedRoles, requireApproval
     );
   }
 
-  if (!authorized) {
+  // Not authorized yet
+  if (!user || !role) {
+    return null;
+  }
+
+  // Role not allowed
+  if (!allowedRoles.includes(role)) {
+    return null;
+  }
+
+  // Jamaah not approved
+  if (requireApproval && role === 'jamaah' && profile?.status !== 'approved') {
     return null;
   }
 
